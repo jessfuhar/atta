@@ -2,10 +2,16 @@ import { useState } from 'react';
 import { useSiteData } from '../../data/siteData';
 import type { Product, ProductVariant } from '../../data/types';
 import { ImageListEditor } from '../ImageListEditor';
+import { ImageThumb } from '../ImageThumb';
 import { Field, TextArea, TextInput } from '../Field';
 import { EditableCard } from '../EditableCard';
-import { withBase } from '../../lib/assets';
-import { uniqueSlug } from '../../lib/slug';
+import { PublishStatusPill } from '../PublishStatusPill';
+import type { DraftImageItem } from '../DraftImage';
+import { uniqueSlug, slugify } from '../../lib/slug';
+import { useGithubAuth } from '../github/auth';
+import { publishChanges, type PublishStatus } from '../github/publish';
+import { serializeProducts } from '../github/serialize';
+import { imageExt, productImagePath, toPublicSrc } from '../github/images';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -27,6 +33,32 @@ function emptyProduct(existingIds: string[]): Product {
     description: '',
     variants: [{ color: 'Preto', hex: '#111111', images: [] }],
   };
+}
+
+function validateProduct(p: Product): string | null {
+  if (!p.name.trim()) return 'Nome é obrigatório.';
+  if (!p.category) return 'Selecione uma categoria (tipo de peça).';
+  if (p.price <= 0) return 'Preço deve ser maior que zero.';
+  if (p.variants.length === 0) return 'Adicione ao menos uma cor.';
+  return null;
+}
+
+/** Resolve os arquivos pendentes das variantes para caminhos publicados e devolve o produto limpo. */
+function extractProductImages(product: Product): { cleaned: Product; images: { path: string; file: File }[] } {
+  const images: { path: string; file: File }[] = [];
+  const variants = product.variants.map((variant) => {
+    const colorSlug = slugify(variant.color || 'cor');
+    const imgs = (variant.images as DraftImageItem[]).map((img, i) => {
+      if (img.file) {
+        const path = productImagePath(product.slug, colorSlug, i, imageExt(img.file));
+        images.push({ path, file: img.file });
+        return { src: toPublicSrc(path), alt: img.alt };
+      }
+      return { src: img.src, alt: img.alt };
+    });
+    return { ...variant, images: imgs };
+  });
+  return { cleaned: { ...product, variants }, images };
 }
 
 function VariantEditor({
@@ -156,7 +188,7 @@ function ProductSummary({ product }: { product: Product }) {
   return (
     <div className="flex items-center gap-4">
       <div className="h-16 w-16 flex-none overflow-hidden border border-line bg-canvas-alt">
-        {cover && <img src={withBase(cover.src)} alt="" className="h-full w-full object-cover" />}
+        <ImageThumb image={cover} className="h-full w-full object-cover" />
       </div>
       <div>
         <p className="text-sm">{product.name}</p>
@@ -170,34 +202,106 @@ function ProductSummary({ product }: { product: Product }) {
 
 export function ProductsTab() {
   const { products, setProducts } = useSiteData();
+  const { token } = useGithubAuth();
   const [creating, setCreating] = useState<Product | null>(null);
+  const [createStatus, setCreateStatus] = useState<PublishStatus>('idle');
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [listStatus, setListStatus] = useState<PublishStatus>('idle');
+  const [listError, setListError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  function reorder(index: number, delta: number) {
-    setProducts(move(products, index, delta));
-  }
-
-  function removeProduct(id: string) {
-    if (confirm('Excluir este produto? Essa ação não pode ser desfeita.')) {
-      setProducts(products.filter((p) => p.id !== id));
+  async function publishList(next: Product[], message: string) {
+    setBusy(true);
+    setListError(null);
+    try {
+      await publishChanges({
+        token: token!,
+        files: [{ path: 'src/data/products.ts', content: serializeProducts(next) }],
+        images: [],
+        message,
+        onStatus: setListStatus,
+      });
+      setProducts(next);
+      setListStatus('idle');
+    } catch (e) {
+      setListStatus('error');
+      setListError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
     }
   }
 
+  function reorder(index: number, delta: number) {
+    const next = move(products, index, delta);
+    if (next !== products) publishList(next, `admin: reordena produtos`);
+  }
+
+  function removeProduct(product: Product) {
+    if (!confirm(`Excluir "${product.name}"? Essa ação publica no GitHub e não pode ser desfeita.`)) return;
+    publishList(products.filter((p) => p.id !== product.id), `admin: remove produto ${product.name}`);
+  }
+
+  async function saveCreate() {
+    if (!creating) return;
+    const validationError = validateProduct(creating);
+    if (validationError) {
+      setCreateError(validationError);
+      return;
+    }
+    setCreateError(null);
+    const { cleaned, images } = extractProductImages(creating);
+    try {
+      await publishChanges({
+        token: token!,
+        files: [{ path: 'src/data/products.ts', content: serializeProducts([...products, cleaned]) }],
+        images,
+        message: `admin: novo produto ${cleaned.name}`,
+        onStatus: setCreateStatus,
+      });
+      setProducts([...products, cleaned]);
+      setCreating(null);
+      setCreateStatus('idle');
+    } catch (e) {
+      setCreateStatus('error');
+      setCreateError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  const creatingBusy = createStatus !== 'idle' && createStatus !== 'error';
+
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-muted">A ordem da lista define a ordem de exibição nas categorias.</p>
+      <div className="flex items-center gap-3">
+        <p className="text-xs text-muted">A ordem da lista define a ordem de exibição nas categorias.</p>
+        <PublishStatusPill status={listStatus} />
+      </div>
+      {listError && <p className="text-sm text-red-600">{listError}</p>}
 
       {products.map((product, i) => (
         <div key={product.id} className="flex items-start gap-2">
           <div className="mt-4 flex flex-col gap-1">
-            <button type="button" disabled={i === 0} onClick={() => reorder(i, -1)} className="px-1 text-xs disabled:opacity-30">▲</button>
-            <button type="button" disabled={i === products.length - 1} onClick={() => reorder(i, 1)} className="px-1 text-xs disabled:opacity-30">▼</button>
+            <button type="button" disabled={i === 0 || busy} onClick={() => reorder(i, -1)} className="px-1 text-xs disabled:opacity-30">▲</button>
+            <button type="button" disabled={i === products.length - 1 || busy} onClick={() => reorder(i, 1)} className="px-1 text-xs disabled:opacity-30">▼</button>
           </div>
 
           <div className="flex-1">
             <EditableCard<Product>
               title={product.name}
               value={product}
-              onSave={(next) => setProducts(products.map((p) => (p.id === product.id ? next : p)))}
+              onSave={async (draft, report) => {
+                const validationError = validateProduct(draft);
+                if (validationError) throw new Error(validationError);
+                const { cleaned, images } = extractProductImages(draft);
+                const nextProducts = products.map((p) => (p.id === product.id ? cleaned : p));
+                await publishChanges({
+                  token: token!,
+                  files: [{ path: 'src/data/products.ts', content: serializeProducts(nextProducts) }],
+                  images,
+                  message: `admin: atualiza produto ${cleaned.name}`,
+                  onStatus: report,
+                });
+                setProducts(nextProducts);
+              }}
               renderSummary={(p) => <ProductSummary product={p} />}
               renderForm={(draft, setDraft) => <ProductForm draft={draft} setDraft={setDraft} />}
             />
@@ -205,8 +309,9 @@ export function ProductsTab() {
 
           <button
             type="button"
-            onClick={() => removeProduct(product.id)}
-            className="mt-4 border border-line px-2 py-1.5 text-[11px] uppercase tracking-[0.1em] text-muted"
+            disabled={busy}
+            onClick={() => removeProduct(product)}
+            className="mt-4 border border-line px-2 py-1.5 text-[11px] uppercase tracking-[0.1em] text-muted disabled:opacity-40"
           >
             Excluir
           </button>
@@ -215,25 +320,32 @@ export function ProductsTab() {
 
       {creating ? (
         <div className="border border-ink p-4">
-          <p className="mb-4 font-display text-lg">Novo produto</p>
+          <div className="mb-4 flex items-center gap-3">
+            <p className="font-display text-lg">Novo produto</p>
+            <PublishStatusPill status={createStatus} />
+          </div>
+          {createError && <p className="mb-3 text-sm text-red-600">{createError}</p>}
           <ProductForm draft={creating} setDraft={(updater) => setCreating((prev) => (prev ? (typeof updater === 'function' ? updater(prev) : updater) : prev))} />
           <div className="mt-4 flex gap-3">
             <button
               type="button"
-              onClick={() => setCreating(null)}
-              className="border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-muted"
+              disabled={creatingBusy}
+              onClick={() => {
+                setCreating(null);
+                setCreateError(null);
+                setCreateStatus('idle');
+              }}
+              className="border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-muted disabled:opacity-40"
             >
               Cancelar
             </button>
             <button
               type="button"
-              onClick={() => {
-                setProducts([...products, creating]);
-                setCreating(null);
-              }}
-              className="border border-ink bg-ink px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-canvas"
+              disabled={creatingBusy}
+              onClick={saveCreate}
+              className="border border-ink bg-ink px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] text-canvas disabled:opacity-40"
             >
-              Salvar alterações
+              Salvar e publicar
             </button>
           </div>
         </div>

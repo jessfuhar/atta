@@ -3,7 +3,12 @@ import type { ColorCategory } from '../../data/types';
 import { ImagePicker } from '../ImagePicker';
 import { Field, TextInput } from '../Field';
 import { EditableCard } from '../EditableCard';
+import type { DraftImageItem } from '../DraftImage';
 import { uniqueSlug } from '../../lib/slug';
+import { useGithubAuth } from '../github/auth';
+import { publishChanges } from '../github/publish';
+import { serializeColorCategories } from '../github/serialize';
+import { colorImagePath, imageExt, toPublicSrc } from '../github/images';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -15,12 +20,32 @@ function move<T>(list: T[], index: number, delta: number): T[] {
 
 export function ColorCategoriesTab() {
   const { colorCategories, setColorCategories } = useSiteData();
+  const { token } = useGithubAuth();
 
   return (
     <EditableCard<ColorCategory[]>
       title="Categorias por cor"
       value={colorCategories}
-      onSave={setColorCategories}
+      onSave={async (draft, report) => {
+        const images: { path: string; file: File }[] = [];
+        const cleaned = draft.map((color) => {
+          const img = color.image as DraftImageItem | undefined;
+          if (img?.file) {
+            const path = colorImagePath(color.id, imageExt(img.file));
+            images.push({ path, file: img.file });
+            return { ...color, image: { src: toPublicSrc(path), alt: img.alt } };
+          }
+          return color;
+        });
+        await publishChanges({
+          token: token!,
+          files: [{ path: 'src/data/colorCategories.ts', content: serializeColorCategories(cleaned) }],
+          images,
+          message: 'admin: atualiza categorias de cor',
+          onStatus: report,
+        });
+        setColorCategories(cleaned);
+      }}
       renderSummary={(list) => (
         <ul className="flex flex-col gap-1 text-sm">
           {list.map((c) => (
@@ -93,10 +118,19 @@ export function ColorCategoriesTab() {
 
               <ImagePicker
                 label="Imagem de capa (opcional — sem imagem usa o hex como fundo)"
-                value={color.image?.src ?? ''}
-                onChange={(src) => {
+                value={{
+                  src: color.image?.src ?? '',
+                  alt: color.image?.alt ?? '',
+                  file: (color.image as DraftImageItem | undefined)?.file,
+                }}
+                onChange={(picked) => {
                   const next = [...draft];
-                  next[i] = { ...color, image: src ? { src, alt: color.label } : undefined };
+                  if (!picked.src) {
+                    next[i] = { ...color, image: undefined };
+                  } else {
+                    const image: DraftImageItem = { src: picked.src, alt: color.label, file: picked.file };
+                    next[i] = { ...color, image };
+                  }
                   setDraft(next);
                 }}
               />

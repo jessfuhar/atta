@@ -1,20 +1,15 @@
 import { useSiteData } from '../../data/siteData';
 import type { HomeContent, Media } from '../../data/types';
 import { ImagePicker } from '../ImagePicker';
+import { ImageThumb } from '../ImageThumb';
 import { Field, TextInput } from '../Field';
 import { EditableCard } from '../EditableCard';
-import { withBase } from '../../lib/assets';
+import { useGithubAuth } from '../github/auth';
+import { publishChanges, type PublishStatus } from '../github/publish';
+import { serializeHome } from '../github/serialize';
+import { homeImagePath, imageExt, toPublicSrc } from '../github/images';
 
-type MediaDraft = Media & { headline?: string; subline?: string; caption?: string; poster?: string };
-
-function MediaThumb({ media }: { media: MediaDraft }) {
-  const src = media.type === 'video' ? media.poster : media.src;
-  return (
-    <div className="h-20 w-20 flex-none overflow-hidden border border-line bg-canvas-alt">
-      {src && <img src={withBase(src)} alt="" className="h-full w-full object-cover" />}
-    </div>
-  );
-}
+type MediaDraft = Media & { headline?: string; subline?: string; caption?: string; poster?: string; file?: File };
 
 function MediaForm({
   media,
@@ -25,6 +20,8 @@ function MediaForm({
   onChange: (media: MediaDraft) => void;
   captionField?: 'subline' | 'caption';
 }) {
+  const currentSrc = media.type === 'video' ? (media.poster ?? '') : media.src;
+
   return (
     <div className="flex flex-col gap-4">
       <Field label="Tipo de mídia">
@@ -43,8 +40,14 @@ function MediaForm({
 
       <ImagePicker
         label={media.type === 'video' ? 'Poster do vídeo' : 'Imagem'}
-        value={media.type === 'video' ? (media.poster ?? '') : media.src}
-        onChange={(src) => onChange(media.type === 'video' ? { ...media, poster: src } : { ...media, src })}
+        value={{ src: currentSrc, alt: media.alt, file: media.file }}
+        onChange={(next) =>
+          onChange(
+            media.type === 'video'
+              ? { ...media, poster: next.src, file: next.file }
+              : { ...media, src: next.src, file: next.file },
+          )
+        }
       />
 
       {media.type === 'video' && (
@@ -75,33 +78,81 @@ function MediaForm({
   );
 }
 
+/** Resolve o arquivo pendente da mídia (se houver) para o caminho final publicado, e devolve o objeto limpo. */
+function resolveMedia(media: MediaDraft, kind: 'hero' | 'editorial') {
+  const images: { path: string; file: File }[] = [];
+  const { file, ...clean } = media;
+
+  if (file) {
+    const path = homeImagePath(kind, imageExt(file));
+    images.push({ path, file });
+    const publicSrc = toPublicSrc(path);
+    if (clean.type === 'video') clean.poster = publicSrc;
+    else clean.src = publicSrc;
+  }
+
+  return { media: clean, images };
+}
+
 export function HomeTab() {
   const { homeContent, products, setHomeContent } = useSiteData();
+  const { token } = useGithubAuth();
+
+  async function saveSection(
+    kind: 'hero' | 'editorial',
+    draft: MediaDraft,
+    label: string,
+    report: (s: PublishStatus) => void,
+  ) {
+    const { media, images } = resolveMedia(draft, kind);
+    const nextHome = { ...homeContent, [kind]: media } as HomeContent;
+    await publishChanges({
+      token: token!,
+      files: [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }],
+      images,
+      message: `admin: atualiza ${label}`,
+      onStatus: report,
+    });
+    setHomeContent(nextHome);
+  }
 
   return (
     <div className="flex flex-col gap-8">
       <EditableCard<MediaDraft>
         title="Hero"
         value={homeContent.hero}
-        onSave={(hero) => setHomeContent({ ...homeContent, hero: hero as HomeContent['hero'] })}
+        onSave={(hero, report) => saveSection('hero', hero, 'hero', report)}
         renderSummary={(hero) => (
           <div className="flex items-center gap-4">
-            <MediaThumb media={hero} />
+            <div className="h-20 w-20 flex-none overflow-hidden border border-line bg-canvas-alt">
+              <ImageThumb
+                image={{ src: hero.type === 'video' ? (hero.poster ?? '') : hero.src, alt: hero.alt }}
+                className="h-full w-full object-cover"
+              />
+            </div>
             <div>
               <p className="text-sm">{hero.headline}</p>
               {hero.subline && <p className="text-xs text-muted">{hero.subline}</p>}
             </div>
           </div>
         )}
-        renderForm={(draft, setDraft) => (
-          <MediaForm media={draft} captionField="subline" onChange={setDraft} />
-        )}
+        renderForm={(draft, setDraft) => <MediaForm media={draft} captionField="subline" onChange={setDraft} />}
       />
 
       <EditableCard<{ title: string; ids: string[] }>
         title="Preferidos"
         value={{ title: homeContent.favoritesTitle, ids: homeContent.favoriteProductIds }}
-        onSave={({ title, ids }) => setHomeContent({ ...homeContent, favoritesTitle: title, favoriteProductIds: ids })}
+        onSave={async ({ title, ids }, report) => {
+          const nextHome: HomeContent = { ...homeContent, favoritesTitle: title, favoriteProductIds: ids };
+          await publishChanges({
+            token: token!,
+            files: [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }],
+            images: [],
+            message: 'admin: atualiza Preferidos',
+            onStatus: report,
+          });
+          setHomeContent(nextHome);
+        }}
         renderSummary={({ title, ids }) => (
           <div>
             <p className="text-sm">Título: {title}</p>
@@ -188,16 +239,19 @@ export function HomeTab() {
       <EditableCard<MediaDraft>
         title="Bloco editorial final"
         value={homeContent.editorial}
-        onSave={(editorial) => setHomeContent({ ...homeContent, editorial: editorial as HomeContent['editorial'] })}
+        onSave={(editorial, report) => saveSection('editorial', editorial, 'bloco editorial', report)}
         renderSummary={(editorial) => (
           <div className="flex items-center gap-4">
-            <MediaThumb media={editorial} />
+            <div className="h-20 w-20 flex-none overflow-hidden border border-line bg-canvas-alt">
+              <ImageThumb
+                image={{ src: editorial.type === 'video' ? (editorial.poster ?? '') : editorial.src, alt: editorial.alt }}
+                className="h-full w-full object-cover"
+              />
+            </div>
             {editorial.caption && <p className="text-sm">{editorial.caption}</p>}
           </div>
         )}
-        renderForm={(draft, setDraft) => (
-          <MediaForm media={draft} captionField="caption" onChange={setDraft} />
-        )}
+        renderForm={(draft, setDraft) => <MediaForm media={draft} captionField="caption" onChange={setDraft} />}
       />
     </div>
   );

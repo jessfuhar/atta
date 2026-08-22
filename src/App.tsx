@@ -5,12 +5,19 @@ import { CategoryPage } from './pages/CategoryPage';
 import { ColorCategoryPage } from './pages/ColorCategoryPage';
 import { ProductPage } from './pages/ProductPage';
 import { AdminApp } from './admin/AdminApp';
+import { AdminGate } from './admin/AdminGate';
 import { useRoute } from './lib/router';
 
 function App() {
   const path = useRoute();
 
-  if (path.startsWith('/admin')) return <AdminApp />;
+  if (path.startsWith('/admin')) {
+    return (
+      <AdminGate>
+        <AdminApp />
+      </AdminGate>
+    );
+  }
 
   const categoryMatch = path.match(/^\/categoria\/([a-z0-9-]+)\/?$/);
   const colorMatch = path.match(/^\/cor\/([a-z0-9-]+)\/?$/);

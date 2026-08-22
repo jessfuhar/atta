@@ -25,6 +25,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          VITE_GITHUB_OAUTH_WORKER_URL: ${{ vars.VITE_GITHUB_OAUTH_WORKER_URL }}
+          VITE_GITHUB_ADMIN_USERNAME: ${{ vars.VITE_GITHUB_ADMIN_USERNAME }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

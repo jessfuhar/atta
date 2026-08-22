@@ -7,7 +7,7 @@
 import { readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
-const REAL_IMAGE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif']);
+const REAL_IMAGE_EXT = new Set(['.png', '.jpg', '.jpeg', '.webp']);
 const EXCLUDED_DIRS = new Set(['brand']);
 const ROOT = join(process.cwd(), 'public', 'images');
 const OUT = join(process.cwd(), 'src', 'data', 'imageManifest.ts');
