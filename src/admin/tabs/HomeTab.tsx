@@ -2,28 +2,37 @@ import { useSiteData } from '../../data/siteData';
 import type { HomeContent, Media } from '../../data/types';
 import { ImagePicker } from '../ImagePicker';
 import { Field, TextInput } from '../Field';
+import { EditableCard } from '../EditableCard';
+import { withBase } from '../../lib/assets';
 
-function MediaEditor({
+type MediaDraft = Media & { headline?: string; subline?: string; caption?: string; poster?: string };
+
+function MediaThumb({ media }: { media: MediaDraft }) {
+  const src = media.type === 'video' ? media.poster : media.src;
+  return (
+    <div className="h-20 w-20 flex-none overflow-hidden border border-line bg-canvas-alt">
+      {src && <img src={withBase(src)} alt="" className="h-full w-full object-cover" />}
+    </div>
+  );
+}
+
+function MediaForm({
   media,
   onChange,
   captionField,
 }: {
-  media: Media & { headline?: string; subline?: string; caption?: string };
-  onChange: (media: Media & { headline?: string; subline?: string; caption?: string }) => void;
+  media: MediaDraft;
+  onChange: (media: MediaDraft) => void;
   captionField?: 'subline' | 'caption';
 }) {
   return (
-    <div className="flex flex-col gap-4 border border-line p-4">
+    <div className="flex flex-col gap-4">
       <Field label="Tipo de mídia">
         <select
           value={media.type}
           onChange={(e) => {
             const type = e.target.value as 'image' | 'video';
-            if (type === 'video') {
-              onChange({ ...media, type, poster: 'poster' in media ? media.poster : '' } as never);
-            } else {
-              onChange({ ...media, type } as never);
-            }
+            onChange(type === 'video' ? { ...media, type, poster: media.poster ?? '' } : { ...media, type });
           }}
           className="border border-line bg-canvas px-2 py-1.5 text-sm"
         >
@@ -34,10 +43,8 @@ function MediaEditor({
 
       <ImagePicker
         label={media.type === 'video' ? 'Poster do vídeo' : 'Imagem'}
-        value={media.type === 'video' ? (media as { poster: string }).poster : media.src}
-        onChange={(src) =>
-          onChange(media.type === 'video' ? ({ ...media, poster: src } as never) : { ...media, src })
-        }
+        value={media.type === 'video' ? (media.poster ?? '') : media.src}
+        onChange={(src) => onChange(media.type === 'video' ? { ...media, poster: src } : { ...media, src })}
       />
 
       {media.type === 'video' && (
@@ -58,6 +65,12 @@ function MediaEditor({
           />
         </Field>
       )}
+
+      {captionField === 'subline' && (
+        <Field label="Título (headline)">
+          <TextInput value={media.headline ?? ''} onChange={(e) => onChange({ ...media, headline: e.target.value })} />
+        </Field>
+      )}
     </div>
   );
 }
@@ -65,72 +78,127 @@ function MediaEditor({
 export function HomeTab() {
   const { homeContent, products, setHomeContent } = useSiteData();
 
-  function patch(next: Partial<HomeContent>) {
-    setHomeContent({ ...homeContent, ...next });
-  }
-
   return (
-    <div className="flex flex-col gap-10">
-      <section>
-        <h2 className="mb-3 font-display text-xl">Hero</h2>
-        <MediaEditor
-          media={homeContent.hero}
-          captionField="subline"
-          onChange={(hero) => patch({ hero: hero as HomeContent['hero'] })}
-        />
-        <div className="mt-3 max-w-xs">
-          <Field label="Título (headline)">
-            <TextInput
-              value={homeContent.hero.headline}
-              onChange={(e) => patch({ hero: { ...homeContent.hero, headline: e.target.value } })}
-            />
-          </Field>
-        </div>
-      </section>
+    <div className="flex flex-col gap-8">
+      <EditableCard<MediaDraft>
+        title="Hero"
+        value={homeContent.hero}
+        onSave={(hero) => setHomeContent({ ...homeContent, hero: hero as HomeContent['hero'] })}
+        renderSummary={(hero) => (
+          <div className="flex items-center gap-4">
+            <MediaThumb media={hero} />
+            <div>
+              <p className="text-sm">{hero.headline}</p>
+              {hero.subline && <p className="text-xs text-muted">{hero.subline}</p>}
+            </div>
+          </div>
+        )}
+        renderForm={(draft, setDraft) => (
+          <MediaForm media={draft} captionField="subline" onChange={setDraft} />
+        )}
+      />
 
-      <section>
-        <h2 className="mb-3 font-display text-xl">Preferidos</h2>
-        <div className="max-w-xs">
-          <Field label="Título da seção">
-            <TextInput
-              value={homeContent.favoritesTitle}
-              onChange={(e) => patch({ favoritesTitle: e.target.value })}
-            />
-          </Field>
-        </div>
+      <EditableCard<{ title: string; ids: string[] }>
+        title="Preferidos"
+        value={{ title: homeContent.favoritesTitle, ids: homeContent.favoriteProductIds }}
+        onSave={({ title, ids }) => setHomeContent({ ...homeContent, favoritesTitle: title, favoriteProductIds: ids })}
+        renderSummary={({ title, ids }) => (
+          <div>
+            <p className="text-sm">Título: {title}</p>
+            <p className="mt-1 text-xs text-muted">
+              {ids.length} produto(s): {ids.map((id) => products.find((p) => p.id === id)?.name ?? id).join(', ') || '—'}
+            </p>
+          </div>
+        )}
+        renderForm={(draft, setDraft) => (
+          <div className="flex flex-col gap-5">
+            <div className="max-w-xs">
+              <Field label="Título da seção">
+                <TextInput value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+              </Field>
+            </div>
 
-        <p className="mb-2 mt-4 text-xs uppercase tracking-[0.15em] text-muted">Produtos em destaque</p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {products.map((product) => {
-            const checked = homeContent.favoriteProductIds.includes(product.id);
-            return (
-              <label key={product.id} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() =>
-                    patch({
-                      favoriteProductIds: checked
-                        ? homeContent.favoriteProductIds.filter((id) => id !== product.id)
-                        : [...homeContent.favoriteProductIds, product.id],
-                    })
-                  }
-                />
-                {product.name}
-              </label>
-            );
-          })}
-        </div>
-      </section>
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Ordem atual</p>
+              {draft.ids.length === 0 && <p className="text-xs text-muted">Nenhum produto selecionado.</p>}
+              <div className="flex flex-col gap-2">
+                {draft.ids.map((id, i) => {
+                  const product = products.find((p) => p.id === id);
+                  return (
+                    <div key={id} className="flex items-center gap-2 border border-line px-2 py-1.5">
+                      <span className="flex-1 text-sm">{product?.name ?? id}</span>
+                      <button
+                        type="button"
+                        disabled={i === 0}
+                        onClick={() => {
+                          const ids = [...draft.ids];
+                          [ids[i - 1], ids[i]] = [ids[i], ids[i - 1]];
+                          setDraft({ ...draft, ids });
+                        }}
+                        className="px-1 text-xs disabled:opacity-30"
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        disabled={i === draft.ids.length - 1}
+                        onClick={() => {
+                          const ids = [...draft.ids];
+                          [ids[i + 1], ids[i]] = [ids[i], ids[i + 1]];
+                          setDraft({ ...draft, ids });
+                        }}
+                        className="px-1 text-xs disabled:opacity-30"
+                      >
+                        ▼
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDraft({ ...draft, ids: draft.ids.filter((x) => x !== id) })}
+                        className="border border-line px-2 py-1 text-[11px] uppercase tracking-[0.1em] text-muted"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-      <section>
-        <h2 className="mb-3 font-display text-xl">Bloco editorial final</h2>
-        <MediaEditor
-          media={homeContent.editorial}
-          captionField="caption"
-          onChange={(editorial) => patch({ editorial: editorial as HomeContent['editorial'] })}
-        />
-      </section>
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Adicionar produto</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {products
+                  .filter((p) => !draft.ids.includes(p.id))
+                  .map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setDraft({ ...draft, ids: [...draft.ids, p.id] })}
+                      className="border border-line px-2 py-1.5 text-left text-xs"
+                    >
+                      + {p.name}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+      />
+
+      <EditableCard<MediaDraft>
+        title="Bloco editorial final"
+        value={homeContent.editorial}
+        onSave={(editorial) => setHomeContent({ ...homeContent, editorial: editorial as HomeContent['editorial'] })}
+        renderSummary={(editorial) => (
+          <div className="flex items-center gap-4">
+            <MediaThumb media={editorial} />
+            {editorial.caption && <p className="text-sm">{editorial.caption}</p>}
+          </div>
+        )}
+        renderForm={(draft, setDraft) => (
+          <MediaForm media={draft} captionField="caption" onChange={setDraft} />
+        )}
+      />
     </div>
   );
 }

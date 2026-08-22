@@ -11,7 +11,7 @@ function downloadText(filename: string, content: string) {
 }
 
 export function ExportPanel() {
-  const { products, categories, homeContent, resetAll, hasOverrides } = useSiteData();
+  const { products, categories, colorCategories, homeContent, resetAll, hasOverrides } = useSiteData();
 
   function exportProducts() {
     downloadText(
@@ -24,6 +24,13 @@ export function ExportPanel() {
     downloadText(
       'categories.ts',
       `import type { CategoryEntry } from './types';\n\nexport const categories: CategoryEntry[] = ${JSON.stringify(categories, null, 2)};\n`,
+    );
+  }
+
+  function exportColorCategories() {
+    downloadText(
+      'colorCategories.ts',
+      `import type { ColorCategory } from './types';\n\nexport const colorCategories: ColorCategory[] = ${JSON.stringify(colorCategories, null, 2)};\n`,
     );
   }
 
@@ -49,6 +56,9 @@ export function ExportPanel() {
         </button>
         <button type="button" onClick={exportCategories} className="border border-ink px-4 py-2 text-xs uppercase tracking-[0.1em]">
           Baixar categories.ts
+        </button>
+        <button type="button" onClick={exportColorCategories} className="border border-ink px-4 py-2 text-xs uppercase tracking-[0.1em]">
+          Baixar colorCategories.ts
         </button>
         <button type="button" onClick={exportHome} className="border border-ink px-4 py-2 text-xs uppercase tracking-[0.1em]">
           Baixar home.ts

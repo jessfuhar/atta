@@ -1,10 +1,5 @@
-export type Category =
-  | 'leggings'
-  | 'shorts'
-  | 'tops'
-  | 'croppeds'
-  | 'macacoes'
-  | 'jaquetas';
+/** Slug da categoria de peça — editável/expansível pelo admin, por isso é string livre. */
+export type Category = string;
 
 /** Imagem hoje, vídeo amanhã — mesma forma de uso nos componentes. */
 export type Media =
@@ -32,6 +27,14 @@ export interface CategoryEntry {
   id: Category;
   label: string;
   image: { src: string; alt: string };
+}
+
+/** Categoria por cor — independente da categoria de peça. Vincula produtos pela cor das variantes (sem duplicar dados). */
+export interface ColorCategory {
+  id: string;
+  label: string;
+  hex: string;
+  image?: { src: string; alt: string };
 }
 
 export interface HomeContent {

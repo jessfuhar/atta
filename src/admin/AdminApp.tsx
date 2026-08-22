@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Link } from '../lib/router';
 import { HomeTab } from './tabs/HomeTab';
 import { CategoriesTab } from './tabs/CategoriesTab';
+import { ColorCategoriesTab } from './tabs/ColorCategoriesTab';
 import { ProductsTab } from './tabs/ProductsTab';
 import { ExportPanel } from './ExportPanel';
 import { Home } from '../pages/Home';
 
-const TABS = ['Home', 'Produtos', 'Categorias', 'Exportar', 'Pré-visualizar'] as const;
+const TABS = ['Home', 'Produtos', 'Categorias', 'Cores', 'Exportar', 'Pré-visualizar'] as const;
 type Tab = (typeof TABS)[number];
 
 export function AdminApp() {
@@ -43,6 +44,7 @@ export function AdminApp() {
         {tab === 'Home' && <HomeTab />}
         {tab === 'Produtos' && <ProductsTab />}
         {tab === 'Categorias' && <CategoriesTab />}
+        {tab === 'Cores' && <ColorCategoriesTab />}
         {tab === 'Exportar' && <ExportPanel />}
         {tab === 'Pré-visualizar' && (
           <div>

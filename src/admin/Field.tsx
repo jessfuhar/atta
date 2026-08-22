@@ -14,10 +14,10 @@ export function Field({ label, children }: FieldProps) {
   );
 }
 
-export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className="border border-line bg-canvas px-2 py-1.5 text-sm" />;
+export function TextInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} className={`border border-line bg-canvas px-2 py-1.5 text-sm ${className ?? ''}`} />;
 }
 
-export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea {...props} className="border border-line bg-canvas px-2 py-1.5 text-sm" />;
+export function TextArea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea {...props} className={`border border-line bg-canvas px-2 py-1.5 text-sm ${className ?? ''}`} />;
 }
