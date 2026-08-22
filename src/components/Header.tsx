@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useScrolled } from '../hooks/useScrolled';
 import { withBase, LOGO_WHITE, LOGO_BLACK } from '../lib/assets';
 import { Link } from '../lib/router';
-import { categories } from '../data/categories';
+import { useSiteData } from '../data/siteData';
 
 export function Header() {
+  const { categories } = useSiteData();
   const scrolled = useScrolled();
   const [menuOpen, setMenuOpen] = useState(false);
 

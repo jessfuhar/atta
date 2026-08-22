@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { categories, getProductsByCategory } from '../data';
+import { useSiteData } from '../data/siteData';
 import type { Product } from '../data/types';
 import { ProductCard } from '../components/ProductCard';
 import { Link } from '../lib/router';
@@ -18,10 +18,11 @@ interface CategoryPageProps {
 }
 
 export function CategoryPage({ slug }: CategoryPageProps) {
+  const { categories, getProductsByCategory } = useSiteData();
   const category = categories.find((c) => c.id === slug);
   const allProducts = useMemo(
     () => (category ? getProductsByCategory(category.id) : []),
-    [category],
+    [category, getProductsByCategory],
   );
 
   const [sort, setSort] = useState<SortOption>('relevancia');

@@ -1,4 +1,4 @@
-import { products, categories, homeContent } from '../data';
+import { useSiteData } from '../data/siteData';
 import { Hero } from '../components/Hero';
 import { Categories } from '../components/Categories';
 import { Favorites } from '../components/Favorites';
@@ -6,6 +6,7 @@ import { Editorial } from '../components/Editorial';
 import { Reveal } from '../components/Reveal';
 
 export function Home() {
+  const { products, categories, homeContent } = useSiteData();
   const favoriteProducts = products.filter((product) =>
     homeContent.favoriteProductIds.includes(product.id),
   );

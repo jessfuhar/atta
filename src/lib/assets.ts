@@ -5,6 +5,6 @@ export const LOGO_BLACK = '/images/brand/atta. sem fundo logo preta.png';
 
 /** Resolve caminhos de mídia vindos de src/data (ex.: "/images/x.svg") contra o base do deploy (GitHub Pages: /atta/). */
 export function withBase(path: string): string {
-  if (/^https?:\/\//.test(path)) return path;
+  if (/^https?:\/\//.test(path) || path.startsWith('data:')) return path;
   return BASE + path.replace(/^\/+/, '');
 }

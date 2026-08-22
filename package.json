@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "images:manifest": "node scripts/build-image-manifest.mjs",
+    "predev": "npm run images:manifest",
+    "prebuild": "npm run images:manifest",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
