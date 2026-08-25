@@ -222,6 +222,7 @@ export function ProductsTab() {
         onStatus: setListStatus,
       });
       setProducts(next);
+      await new Promise((resolve) => setTimeout(resolve, 600));
       setListStatus('idle');
     } catch (e) {
       setListStatus('error');
@@ -259,6 +260,7 @@ export function ProductsTab() {
         onStatus: setCreateStatus,
       });
       setProducts([...products, cleaned]);
+      await new Promise((resolve) => setTimeout(resolve, 600));
       setCreating(null);
       setCreateStatus('idle');
     } catch (e) {

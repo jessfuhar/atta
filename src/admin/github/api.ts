@@ -68,23 +68,3 @@ export async function commitFiles(token: string, files: CommitFile[], message: s
 
   return { commitSha: commit.sha, commitUrl: commit.html_url };
 }
-
-export type WorkflowOutcome = 'success' | 'failure' | 'timeout';
-
-/** Acompanha o workflow do GitHub Actions disparado pelo push — só para status na UI, não bloqueia o commit. */
-export async function waitForWorkflow(token: string, headSha: string, timeoutMs = 120_000): Promise<WorkflowOutcome> {
-  const repoPath = `/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
-  const start = Date.now();
-
-  while (Date.now() - start < timeoutMs) {
-    const runs = await ghFetch(`${repoPath}/actions/runs?branch=${GITHUB_BRANCH}&per_page=10`, token);
-    const run = (runs.workflow_runs as Array<{ head_sha: string; status: string; conclusion: string | null }>)?.find(
-      (r) => r.head_sha === headSha,
-    );
-    if (run?.status === 'completed') {
-      return run.conclusion === 'success' ? 'success' : 'failure';
-    }
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-  }
-  return 'timeout';
-}
