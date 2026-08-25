@@ -6,7 +6,7 @@ export const products: Product[] = [
     "slug": "legging-essential",
     "name": "Legging Essential",
     "category": "leggings",
-    "price": 120,
+    "price": 100,
     "sizes": [
       "P",
       "M",
