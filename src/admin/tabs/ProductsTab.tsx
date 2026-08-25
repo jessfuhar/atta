@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSiteData } from '../../data/siteData';
 import type { Product, ProductVariant } from '../../data/types';
 import { ImageListEditor } from '../ImageListEditor';
@@ -10,6 +10,7 @@ import type { DraftImageItem } from '../DraftImage';
 import { uniqueSlug, slugify } from '../../lib/slug';
 import { useGithubAuth } from '../github/auth';
 import { publishChanges, type PublishStatus } from '../github/publish';
+import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
 import { serializeProducts } from '../github/serialize';
 import { imageExt, productImagePath, toPublicSrc } from '../github/images';
 
@@ -208,11 +209,22 @@ export function ProductsTab() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [listStatus, setListStatus] = useState<PublishStatus>('idle');
   const [listError, setListError] = useState<string | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(feedbackTimer.current), []);
+
+  function showFeedback(msg: string) {
+    setFeedbackMessage(msg);
+    clearTimeout(feedbackTimer.current);
+    feedbackTimer.current = setTimeout(() => setFeedbackMessage(null), 5000);
+  }
 
   async function publishList(next: Product[], message: string) {
     setBusy(true);
     setListError(null);
+    setFeedbackMessage(null);
     try {
       await publishChanges({
         token: token!,
@@ -222,8 +234,9 @@ export function ProductsTab() {
         onStatus: setListStatus,
       });
       setProducts(next);
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      // Concluído assim que o commit + main forem confirmados — não espera Actions/Pages.
       setListStatus('idle');
+      showFeedback(PUBLISH_SUCCESS_MESSAGE);
     } catch (e) {
       setListStatus('error');
       setListError(e instanceof Error ? e.message : String(e));
@@ -260,9 +273,10 @@ export function ProductsTab() {
         onStatus: setCreateStatus,
       });
       setProducts([...products, cleaned]);
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      // Concluído assim que o commit + main forem confirmados — não espera Actions/Pages.
       setCreating(null);
       setCreateStatus('idle');
+      showFeedback(PUBLISH_SUCCESS_MESSAGE);
     } catch (e) {
       setCreateStatus('error');
       setCreateError(e instanceof Error ? e.message : String(e));
@@ -278,6 +292,7 @@ export function ProductsTab() {
         <PublishStatusPill status={listStatus} />
       </div>
       {listError && <p className="text-sm text-red-600">{listError}</p>}
+      {feedbackMessage && <p className="text-sm text-emerald-600">{feedbackMessage}</p>}
 
       {products.map((product, i) => (
         <div key={product.id} className="flex items-start gap-2">

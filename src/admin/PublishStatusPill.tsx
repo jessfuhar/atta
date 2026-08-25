@@ -3,7 +3,7 @@ import type { PublishStatus } from './github/publish';
 const LABELS: Record<PublishStatus, string> = {
   idle: '',
   saving: 'Salvando',
-  published: 'Alterações salvas. O site está sendo atualizado.',
+  published: 'Salvo',
   error: 'Erro',
 };
 

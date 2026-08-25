@@ -13,7 +13,7 @@ interface EditableCardProps<T> {
 
 /** Editar → Salvar e publicar / Cancelar: nada muda no site até o commit ser publicado com sucesso. */
 export function EditableCard<T>({ title, value, onSave, renderSummary, renderForm }: EditableCardProps<T>) {
-  const { editing, draft, setDraft, edit, cancel, save, dirty, status, error, saving } = useDraft(value, onSave);
+  const { editing, draft, setDraft, edit, cancel, save, dirty, status, error, message, saving } = useDraft(value, onSave);
 
   return (
     <div className="border border-line p-4">
@@ -22,6 +22,7 @@ export function EditableCard<T>({ title, value, onSave, renderSummary, renderFor
         <EditActions editing={editing} dirty={dirty} status={status} saving={saving} onEdit={edit} onSave={save} onCancel={cancel} />
       </div>
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+      {!editing && message && <p className="mb-3 text-sm text-emerald-600">{message}</p>}
       {editing ? renderForm(draft, setDraft) : renderSummary(value)}
     </div>
   );

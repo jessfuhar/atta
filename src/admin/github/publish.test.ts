@@ -1,0 +1,49 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { publishChanges, type PublishStatus } from './publish';
+
+vi.mock('./api', () => ({
+  commitFiles: vi.fn(),
+}));
+
+const { commitFiles } = await import('./api');
+const commitFilesMock = vi.mocked(commitFiles);
+
+beforeEach(() => {
+  commitFilesMock.mockReset();
+});
+
+describe('publishChanges', () => {
+  it('reporta "saving" e depois "published" assim que o commit é confirmado — sem esperar deploy', async () => {
+    commitFilesMock.mockResolvedValue({ commitSha: 'abc', commitUrl: 'url', unchanged: false });
+    const statuses: PublishStatus[] = [];
+
+    await publishChanges({
+      token: 't',
+      files: [{ path: 'src/data/products.ts', content: 'x' }],
+      images: [],
+      message: 'admin: teste',
+      onStatus: (s) => statuses.push(s),
+    });
+
+    expect(statuses).toEqual(['saving', 'published']);
+    expect(commitFilesMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('propaga a falha quando o commit no GitHub falha e nunca reporta "published" (não afirma que salvou)', async () => {
+    commitFilesMock.mockRejectedValue(new Error('GitHub API 500: falha'));
+    const statuses: PublishStatus[] = [];
+
+    await expect(
+      publishChanges({
+        token: 't',
+        files: [{ path: 'src/data/products.ts', content: 'x' }],
+        images: [],
+        message: 'admin: teste',
+        onStatus: (s) => statuses.push(s),
+      }),
+    ).rejects.toThrow('GitHub API 500');
+
+    expect(statuses).toEqual(['saving']);
+    expect(statuses).not.toContain('published');
+  });
+});
