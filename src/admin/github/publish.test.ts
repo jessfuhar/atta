@@ -29,6 +29,22 @@ describe('publishChanges', () => {
     expect(commitFilesMock).toHaveBeenCalledTimes(1);
   });
 
+  it('recusa publicar um arquivo de dados com imagem embutida em base64 (sem chamar commitFiles)', async () => {
+    const statuses: PublishStatus[] = [];
+
+    await expect(
+      publishChanges({
+        token: 't',
+        files: [{ path: 'src/data/home.ts', content: 'export const x = "data:image/jpeg;base64,abcd";' }],
+        images: [],
+        message: 'admin: teste',
+        onStatus: (s) => statuses.push(s),
+      }),
+    ).rejects.toThrow(/base64 embutida/i);
+
+    expect(commitFilesMock).not.toHaveBeenCalled();
+  });
+
   it('propaga a falha quando o commit no GitHub falha e nunca reporta "published" (não afirma que salvou)', async () => {
     commitFilesMock.mockRejectedValue(new Error('GitHub API 500: falha'));
     const statuses: PublishStatus[] = [];

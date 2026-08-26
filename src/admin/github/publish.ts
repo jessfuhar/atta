@@ -16,9 +16,21 @@ interface PublishArgs {
   onStatus: (status: PublishStatus) => void;
 }
 
-/** Uma edição = um commit: serializa os arquivos de dados + envia as imagens novas juntos. */
+/**
+ * Uma edição = um commit: serializa os arquivos de dados + envia as imagens novas juntos.
+ * Imagens sempre viram arquivo em public/images/ — nunca base64 embutido no arquivo de dados
+ * (isso já bloou o bundle e degradou uma foto no passado; ver commit que corrigiu home.ts).
+ */
 export async function publishChanges({ token, files, images, message, onStatus }: PublishArgs): Promise<void> {
   onStatus('saving');
+
+  for (const f of files) {
+    if (f.content.includes('data:image')) {
+      throw new Error(
+        `Imagem em base64 embutida em ${f.path} — imagens devem ser um arquivo publicado em public/images, nunca inline no dado.`,
+      );
+    }
+  }
 
   const imageFiles: CommitFile[] = await Promise.all(
     images.map(async (img) => ({
