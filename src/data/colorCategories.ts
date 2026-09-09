@@ -1,9 +1,19 @@
 import type { ColorCategory } from './types';
 
-// Placeholders — renomear/ajustar hex quando as cores reais da coleção forem definidas.
-// O nome (label) precisa bater com o texto usado em ProductVariant.color para reunir os produtos.
 export const colorCategories: ColorCategory[] = [
-  { id: 'cor-1', label: 'Cor 1', hex: '#111111' },
-  { id: 'cor-2', label: 'Cor 2', hex: '#666666' },
-  { id: 'cor-3', label: 'Cor 3', hex: '#cccccc' },
+  {
+    "id": "cor-1",
+    "label": "Marrom",
+    "hex": "#763b05"
+  },
+  {
+    "id": "cor-2",
+    "label": "Preto",
+    "hex": "#000000"
+  },
+  {
+    "id": "cor-3",
+    "label": "Azul Royal",
+    "hex": "#0e2a6c"
+  }
 ];
