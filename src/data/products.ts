@@ -6,32 +6,36 @@ export const products: Product[] = [
     "slug": "legging-essential",
     "name": "Legging Essential",
     "category": "leggings",
-    "price": 100,
+    "price": 129,
     "sizes": [
       "P",
       "M",
       "G"
     ],
-    "description": "Legging de compressão média, cintura alta.",
+    "description": "Legging de compressão alta, cintura alta.",
     "variants": [
       {
-        "color": "Preto",
-        "hex": "#111111",
+        "color": "Marrom",
+        "hex": "#713004",
         "images": [
           {
-            "src": "/images/products/legging-essential/preto-1.jpg",
-            "alt": "Legging Essential preta, vista frontal"
-          },
-          {
-            "src": "/images/products/legging-essential/preto-2.jpg",
+            "src": "/images/products/legging-essential/marrom-1.png",
             "alt": ""
           },
           {
-            "src": "/images/products/legging-essential/preto-3.jpg",
+            "src": "/images/products/legging-essential/marrom-2.png",
             "alt": ""
           },
           {
-            "src": "/images/products/legging-essential/preto-4.jpg",
+            "src": "/images/products/legging-essential/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/legging-essential/marrom-4.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/legging-essential/marrom-5.png",
             "alt": ""
           }
         ]
