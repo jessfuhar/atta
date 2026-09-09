@@ -140,8 +140,24 @@ export const products: Product[] = [
         "hex": "#763b05",
         "images": [
           {
-            "src": "/images/products/cropped-essential/branco-01.svg",
-            "alt": "Cropped Essential branco, vista frontal"
+            "src": "/images/products/cropped-essential/marrom-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/cropped-essential/marrom-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/cropped-essential/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/cropped-essential/marrom-4.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/cropped-essential/marrom-5.png",
+            "alt": ""
           }
         ]
       }
