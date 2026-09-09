@@ -55,9 +55,9 @@ export const products: Product[] = [
   {
     "id": "top-essential",
     "slug": "top-essential",
-    "name": "Top Essential",
+    "name": "Top Essential Alça Larga",
     "category": "tops",
-    "price": 149,
+    "price": 65.9,
     "sizes": [
       "P",
       "M",
@@ -66,16 +66,24 @@ export const products: Product[] = [
     "description": "Top de sustentação média com costas nadador.",
     "variants": [
       {
-        "color": "Preto",
-        "hex": "#111111",
+        "color": "Marrom",
+        "hex": "#763b05",
         "images": [
           {
-            "src": "/images/products/top-essential/preto-01.svg",
-            "alt": "Top Essential preto, vista frontal"
+            "src": "/images/products/top-essential/marrom-1.png",
+            "alt": ""
           },
           {
-            "src": "/images/products/top-essential/preto-02.svg",
-            "alt": "Top Essential preto, detalhe"
+            "src": "/images/products/top-essential/marrom-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/marrom-4.png",
+            "alt": ""
           }
         ]
       }
