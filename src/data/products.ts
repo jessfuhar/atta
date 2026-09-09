@@ -257,6 +257,43 @@ export const products: Product[] = [
         ]
       }
     ]
+  },
+  {
+    "id": "novo-produto-2",
+    "slug": "novo-produto-2",
+    "name": "Cropped Essential Manga Longa ",
+    "category": "croppeds",
+    "price": 79.9,
+    "sizes": [
+      "P",
+      "M",
+      "G"
+    ],
+    "description": "Cropped Manga Longa com decote quadrado \nCom abertura para o polegar ",
+    "variants": [
+      {
+        "color": "Marrom",
+        "hex": "#763b05",
+        "images": [
+          {
+            "src": "/images/products/novo-produto-2/marrom-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/marrom-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/marrom-4.png",
+            "alt": ""
+          }
+        ]
+      }
+    ]
   }
 ];
 
