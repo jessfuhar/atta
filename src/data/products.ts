@@ -41,8 +41,8 @@ export const products: Product[] = [
         ]
       },
       {
-        "color": "Branco",
-        "hex": "#f5f5f5",
+        "color": "Preto",
+        "hex": "#000000",
         "images": [
           {
             "src": "/images/products/legging-essential/branco-01.svg",
