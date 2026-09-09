@@ -70,15 +70,15 @@ export const products: Product[] = [
         "hex": "#763b05",
         "images": [
           {
-            "src": "/images/products/top-essential/marrom-1.png",
-            "alt": ""
-          },
-          {
             "src": "/images/products/top-essential/marrom-2.png",
             "alt": ""
           },
           {
             "src": "/images/products/top-essential/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/marrom-1.png",
             "alt": ""
           },
           {
