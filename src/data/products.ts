@@ -220,6 +220,26 @@ export const products: Product[] = [
         ]
       }
     ]
+  },
+  {
+    "id": "novo-produto",
+    "slug": "novo-produto",
+    "name": "Top Essential Alça Fina ",
+    "category": "tops",
+    "price": 65.9,
+    "sizes": [
+      "P",
+      "M",
+      "G"
+    ],
+    "description": "",
+    "variants": [
+      {
+        "color": "Preto",
+        "hex": "#111111",
+        "images": []
+      }
+    ]
   }
 ];
 
