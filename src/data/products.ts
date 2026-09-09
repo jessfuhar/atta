@@ -125,19 +125,19 @@ export const products: Product[] = [
   {
     "id": "cropped-essential",
     "slug": "cropped-essential",
-    "name": "Cropped Essential",
+    "name": "Cropped Essential Manga Curta ",
     "category": "croppeds",
-    "price": 159,
+    "price": 69.9,
     "sizes": [
       "P",
       "M",
       "G"
     ],
-    "description": "Cropped canelado, gola alta.",
+    "description": "",
     "variants": [
       {
-        "color": "Branco",
-        "hex": "#f5f5f5",
+        "color": "Marrom",
+        "hex": "#763b05",
         "images": [
           {
             "src": "/images/products/cropped-essential/branco-01.svg",
