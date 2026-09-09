@@ -232,12 +232,29 @@ export const products: Product[] = [
       "M",
       "G"
     ],
-    "description": "",
+    "description": "Top de Suplex de Poliamida com alça regulável dourada ",
     "variants": [
       {
-        "color": "Preto",
-        "hex": "#111111",
-        "images": []
+        "color": "Marrom",
+        "hex": "#763b05",
+        "images": [
+          {
+            "src": "/images/products/novo-produto/marrom-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto/marrom-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto/marrom-4.png",
+            "alt": ""
+          }
+        ]
       }
     ]
   }
