@@ -84,9 +84,9 @@ export const products: Product[] = [
   {
     "id": "short-essential",
     "slug": "short-essential",
-    "name": "Short Essential",
+    "name": "Short Essential com Bolso",
     "category": "shorts",
-    "price": 179,
+    "price": 89,
     "sizes": [
       "P",
       "M",
@@ -95,12 +95,28 @@ export const products: Product[] = [
     "description": "Short de treino com forro interno.",
     "variants": [
       {
-        "color": "Preto",
-        "hex": "#111111",
+        "color": "Marrom ",
+        "hex": "#763b05",
         "images": [
           {
-            "src": "/images/products/short-essential/preto-01.svg",
-            "alt": "Short Essential preto, vista frontal"
+            "src": "/images/products/short-essential/marrom-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/marrom-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/marrom-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/marrom-4.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/marrom-5.png",
+            "alt": ""
           }
         ]
       }
