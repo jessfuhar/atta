@@ -2,6 +2,22 @@ import type { CategoryEntry } from './types';
 
 export const categories: CategoryEntry[] = [
   {
+    "id": "kits",
+    "label": "Conjunto Duo Essential - 2 Peças ",
+    "image": {
+      "src": "/images/categories/kits.png",
+      "alt": "Conjunto Duo Essential - 2 Peças "
+    }
+  },
+  {
+    "id": "nova-categoria",
+    "label": "Trio Essential - 3 Peças",
+    "image": {
+      "src": "/images/categories/nova-categoria.png",
+      "alt": "Trio Essential - 3 Peças"
+    }
+  },
+  {
     "id": "leggings",
     "label": "Leggings",
     "image": {
@@ -31,22 +47,6 @@ export const categories: CategoryEntry[] = [
     "image": {
       "src": "/images/categories/croppeds.png",
       "alt": "Croppeds"
-    }
-  },
-  {
-    "id": "kits",
-    "label": "Conjunto Duo Essential - 2 Peças ",
-    "image": {
-      "src": "/images/categories/kits.png",
-      "alt": "Conjunto Duo Essential - 2 Peças "
-    }
-  },
-  {
-    "id": "nova-categoria",
-    "label": "Trio Essential - 3 Peças",
-    "image": {
-      "src": "/images/categories/nova-categoria.png",
-      "alt": "Trio Essential - 3 Peças"
     }
   }
 ];
