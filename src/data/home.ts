@@ -3,7 +3,7 @@ import type { HomeContent } from './types';
 export const homeContent: HomeContent = {
   "hero": {
     "desktop": {
-      "src": "/images/collections/hero.jpg",
+      "src": "/images/collections/hero-desktop.png",
       "alt": ""
     },
     "announcement": {
