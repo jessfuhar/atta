@@ -6,7 +6,9 @@ import { kits as baseKits } from './kits';
 import { homeContent as baseHomeContent } from './home';
 import type { Category, CategoryEntry, ColorCategory, HomeContent, Kit, Product, ProductVariant } from './types';
 
-const STORAGE_KEY = 'atta:admin:overrides:v1';
+// v2: a estrutura do Hero mudou (ver HomeContent) — chave nova garante que um rascunho salvo
+// no formato antigo nunca seja lido de volta e trave o site (ver isValidHome abaixo).
+const STORAGE_KEY = 'atta:admin:overrides:v2';
 
 interface Overrides {
   products?: Product[];
@@ -16,10 +18,24 @@ interface Overrides {
   home?: HomeContent;
 }
 
+/** Confere o mínimo do formato atual do Hero — um rascunho de um formato antigo é ignorado em vez de travar o site. */
+export function isValidHome(home: unknown): home is HomeContent {
+  const h = home as { hero?: { desktop?: unknown; announcement?: { enabled?: unknown } } } | null | undefined;
+  return Boolean(h && h.hero && h.hero.desktop && h.hero.announcement && 'enabled' in h.hero.announcement);
+}
+
+/** Nunca deixa um rascunho salvo num formato incompatível (de antes de uma mudança de estrutura) travar o site — ignora só o campo inválido. */
 function loadOverrides(): Overrides {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Overrides) : {};
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Overrides;
+    if (parsed.home && !isValidHome(parsed.home)) delete parsed.home;
+    if (parsed.products && !Array.isArray(parsed.products)) delete parsed.products;
+    if (parsed.categories && !Array.isArray(parsed.categories)) delete parsed.categories;
+    if (parsed.colorCategories && !Array.isArray(parsed.colorCategories)) delete parsed.colorCategories;
+    if (parsed.kits && !Array.isArray(parsed.kits)) delete parsed.kits;
+    return parsed;
   } catch {
     return {};
   }
