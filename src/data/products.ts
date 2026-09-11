@@ -285,6 +285,28 @@ export const products: Product[] = [
             "alt": ""
           }
         ]
+      },
+      {
+        "color": "Nova cor",
+        "hex": "#111111",
+        "images": [
+          {
+            "src": "/images/products/novo-produto-2/nova-cor-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/nova-cor-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/nova-cor-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/nova-cor-4.png",
+            "alt": ""
+          }
+        ]
       }
     ]
   }
