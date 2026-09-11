@@ -5,36 +5,48 @@ export const categories: CategoryEntry[] = [
     "id": "leggings",
     "label": "Leggings",
     "image": {
-      "src": "/images/categories/leggings.svg",
-      "alt": "Categoria leggings"
+      "src": "/images/categories/leggings.png",
+      "alt": "Leggings"
     }
   },
   {
     "id": "tops",
     "label": "Tops",
     "image": {
-      "src": "/images/categories/tops.svg",
-      "alt": "Categoria tops"
+      "src": "/images/categories/tops.png",
+      "alt": "Tops"
     }
   },
   {
     "id": "shorts",
     "label": "Shorts",
     "image": {
-      "src": "/images/categories/shorts.svg",
-      "alt": "Categoria shorts"
+      "src": "/images/categories/shorts.png",
+      "alt": "Shorts"
     }
   },
   {
     "id": "croppeds",
     "label": "Croppeds",
     "image": {
-      "src": "/images/categories/croppeds.svg",
-      "alt": "Categoria croppeds"
+      "src": "/images/categories/croppeds.png",
+      "alt": "Croppeds"
     }
   },
   {
     "id": "kits",
-    "label": "Kits"
+    "label": "Conjunto Duo Essential - 2 Peças ",
+    "image": {
+      "src": "/images/categories/kits.png",
+      "alt": "Conjunto Duo Essential - 2 Peças "
+    }
+  },
+  {
+    "id": "nova-categoria",
+    "label": "Trio Essential - 3 Peças",
+    "image": {
+      "src": "/images/categories/nova-categoria.png",
+      "alt": "Trio Essential - 3 Peças"
+    }
   }
 ];
