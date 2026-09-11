@@ -21,7 +21,9 @@ export const homeContent: HomeContent = {
   "favoritesTitle": "Preferidos",
   "favoriteProductIds": [
     "legging-essential",
-    "top-essential"
+    "top-essential",
+    "short-essential",
+    "cropped-essential"
   ],
   "editorial": {
     "type": "image",
