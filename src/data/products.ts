@@ -172,7 +172,7 @@ export const products: Product[] = [
     "slug": "short-essential",
     "name": "Short Essential ",
     "category": "shorts",
-    "price": 89,
+    "price": 89.9,
     "sizes": [
       "P",
       "M",
@@ -220,6 +220,28 @@ export const products: Product[] = [
           },
           {
             "src": "/images/products/short-essential/preto-3.png",
+            "alt": ""
+          }
+        ]
+      },
+      {
+        "color": "Azul Royal",
+        "hex": "#13177c",
+        "images": [
+          {
+            "src": "/images/products/short-essential/azul-royal-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/azul-royal-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/azul-royal-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/short-essential/azul-royal-4.png",
             "alt": ""
           }
         ]
