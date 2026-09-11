@@ -458,6 +458,24 @@ export const products: Product[] = [
             "alt": ""
           }
         ]
+      },
+      {
+        "color": "Azul Royal",
+        "hex": "#13177c",
+        "images": [
+          {
+            "src": "/images/products/novo-produto-2/azul-royal-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/azul-royal-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-2/azul-royal-3.png",
+            "alt": ""
+          }
+        ]
       }
     ]
   }
