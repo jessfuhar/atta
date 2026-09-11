@@ -63,7 +63,7 @@ export function CategoriesTab() {
 
           {draft.map((category, i) => (
             <div key={category.id} className="flex flex-col gap-3 border border-line p-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs uppercase tracking-[0.15em] text-muted">slug: {category.id}</p>
                 <div className="flex items-center gap-2">
                   <button type="button" disabled={i === 0} onClick={() => setDraft(move(draft, i, -1))} className="px-1 text-xs disabled:opacity-30">▲</button>

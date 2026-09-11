@@ -39,11 +39,11 @@ export function ImageListEditor({ images, onChange }: ImageListEditorProps) {
   return (
     <div className="flex flex-col gap-3">
       {images.map((image, i) => (
-        <div key={i} className="flex items-start gap-2 border border-line p-2">
+        <div key={i} className="flex flex-wrap items-start gap-2 border border-line p-2">
           <div className="h-16 w-16 flex-none overflow-hidden border border-line bg-canvas-alt">
             <ImageThumb image={image} className="h-full w-full object-cover" />
           </div>
-          <div className="flex-1">
+          <div className="min-w-[160px] flex-1">
             <p className="mb-1 text-[10px] uppercase tracking-[0.1em] text-muted">
               {i === 0 ? 'Capa' : i === 1 ? 'Hover' : 'Galeria'}
               {image.file && <span className="ml-2 text-amber-600">novo — publica ao salvar</span>}
@@ -51,6 +51,7 @@ export function ImageListEditor({ images, onChange }: ImageListEditorProps) {
             <TextInput
               value={image.alt}
               placeholder="Texto alternativo"
+              className="w-full"
               onChange={(e) => {
                 const next = [...images];
                 next[i] = { ...next[i], alt: e.target.value };

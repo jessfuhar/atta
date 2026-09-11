@@ -4,6 +4,7 @@ import { Home } from './pages/Home';
 import { CategoryPage } from './pages/CategoryPage';
 import { ColorCategoryPage } from './pages/ColorCategoryPage';
 import { ProductPage } from './pages/ProductPage';
+import { KitPage } from './pages/KitPage';
 import { AdminApp } from './admin/AdminApp';
 import { AdminGate } from './admin/AdminGate';
 import { useRoute } from './lib/router';
@@ -22,6 +23,7 @@ function App() {
   const categoryMatch = path.match(/^\/categoria\/([a-z0-9-]+)\/?$/);
   const colorMatch = path.match(/^\/cor\/([a-z0-9-]+)\/?$/);
   const productMatch = path.match(/^\/produto\/([a-z0-9-]+)\/?$/);
+  const kitMatch = path.match(/^\/kit\/([a-z0-9-]+)\/?$/);
 
   return (
     <>
@@ -30,6 +32,8 @@ function App() {
       <main>
         {productMatch ? (
           <ProductPage slug={productMatch[1]} />
+        ) : kitMatch ? (
+          <KitPage slug={kitMatch[1]} />
         ) : colorMatch ? (
           <ColorCategoryPage id={colorMatch[1]} />
         ) : categoryMatch ? (

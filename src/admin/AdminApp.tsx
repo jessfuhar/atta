@@ -4,10 +4,11 @@ import { HomeTab } from './tabs/HomeTab';
 import { CategoriesTab } from './tabs/CategoriesTab';
 import { ColorCategoriesTab } from './tabs/ColorCategoriesTab';
 import { ProductsTab } from './tabs/ProductsTab';
+import { KitsTab } from './tabs/KitsTab';
 import { Home } from '../pages/Home';
 import { useGithubAuth } from './github/auth';
 
-const TABS = ['Home', 'Produtos', 'Categorias', 'Cores', 'Pré-visualizar'] as const;
+const TABS = ['Home', 'Produtos', 'Categorias', 'Cores', 'Kits', 'Pré-visualizar'] as const;
 type Tab = (typeof TABS)[number];
 
 export function AdminApp() {
@@ -16,12 +17,12 @@ export function AdminApp() {
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
-      <header className="flex items-center justify-between border-b border-line px-6 py-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-4 sm:px-6">
         <div>
           <p className="font-display text-xl">atta. admin</p>
           <p className="text-xs text-muted">Editar → Salvar e publicar → GitHub → site atualizado</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {user && (
             <span className="flex items-center gap-2 text-xs text-muted">
               <img src={user.avatarUrl} alt="" className="h-6 w-6 rounded-full" />
@@ -37,7 +38,7 @@ export function AdminApp() {
         </div>
       </header>
 
-      <nav className="flex gap-1 overflow-x-auto border-b border-line px-6">
+      <nav className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line px-4 sm:px-6">
         {TABS.map((t) => (
           <button
             key={t}
@@ -52,11 +53,12 @@ export function AdminApp() {
         ))}
       </nav>
 
-      <main className="mx-auto max-w-4xl px-6 py-8">
+      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         {tab === 'Home' && <HomeTab />}
         {tab === 'Produtos' && <ProductsTab />}
         {tab === 'Categorias' && <CategoriesTab />}
         {tab === 'Cores' && <ColorCategoriesTab />}
+        {tab === 'Kits' && <KitsTab />}
         {tab === 'Pré-visualizar' && (
           <div>
             <p className="mb-3 text-xs text-muted">Pré-visualização com os dados atuais (role para ver a Home inteira).</p>

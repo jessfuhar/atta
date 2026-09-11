@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Product } from '../data/types';
+import type { Product, ProductVariant } from '../data/types';
 import { formatPrice } from '../lib/format';
 import { withBase } from '../lib/assets';
 import { Link } from '../lib/router';
@@ -7,12 +7,14 @@ import { Link } from '../lib/router';
 interface ProductCardProps {
   product: Product;
   className?: string;
+  /** Força a variante mostrada (ex.: página de uma cor específica) — sem isso, usa a 1ª cor cadastrada. */
+  variant?: ProductVariant;
 }
 
 /** Preferidos/Home usam só a 1ª foto (2ª no hover) — o restante da galeria vive na página do produto. */
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({ product, className, variant }: ProductCardProps) {
   const [hovered, setHovered] = useState(false);
-  const images = product.variants[0]?.images ?? [];
+  const images = (variant ?? product.variants[0])?.images ?? [];
   const first = images[0];
   const second = images[1];
 

@@ -3,6 +3,7 @@ import { products } from './products';
 import { homeContent } from './home';
 import { categories } from './categories';
 import { colorCategories } from './colorCategories';
+import { kits } from './kits';
 
 /**
  * Regressão do bug de qualidade de imagem: um `hero.src` e a capa da Legging Essential acabaram
@@ -26,12 +27,13 @@ function collectDataUris(value: unknown, path: string, found: string[]) {
 }
 
 describe('dados do site: imagens nunca embutidas em base64', () => {
-  it('products.ts / home.ts / categories.ts / colorCategories.ts só referenciam arquivos publicados', () => {
+  it('products.ts / home.ts / categories.ts / colorCategories.ts / kits.ts só referenciam arquivos publicados', () => {
     const found: string[] = [];
     collectDataUris(products, 'products', found);
     collectDataUris(homeContent, 'homeContent', found);
     collectDataUris(categories, 'categories', found);
     collectDataUris(colorCategories, 'colorCategories', found);
+    collectDataUris(kits, 'kits', found);
     expect(found).toEqual([]);
   });
 });

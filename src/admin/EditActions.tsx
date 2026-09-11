@@ -25,7 +25,7 @@ export function EditActions({ editing, dirty, status, saving, onEdit, onSave, on
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <PublishStatusPill status={status} />
       {status === 'idle' && dirty && (
         <span className="text-[11px] uppercase tracking-[0.1em] text-amber-600">● não salvo</span>

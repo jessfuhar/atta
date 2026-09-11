@@ -7,13 +7,13 @@ interface ColorCategoryPageProps {
   id: string;
 }
 
-/** Reúne produtos pela cor da variante (sem duplicar dados) — ver getProductsByColorLabel em data/siteData. */
+/** Reúne produtos pela cor da variante (sem duplicar dados) — cada card mostra só a variante daquela cor, sem fallback. */
 export function ColorCategoryPage({ id }: ColorCategoryPageProps) {
-  const { colorCategories, getProductsByColorLabel } = useSiteData();
+  const { colorCategories, getColorMatches } = useSiteData();
   const category = colorCategories.find((c) => c.id === id);
-  const products = useMemo(
-    () => (category ? getProductsByColorLabel(category.label) : []),
-    [category, getProductsByColorLabel],
+  const matches = useMemo(
+    () => (category ? getColorMatches(category.label) : []),
+    [category, getColorMatches],
   );
 
   if (!category) {
@@ -37,15 +37,15 @@ export function ColorCategoryPage({ id }: ColorCategoryPageProps) {
         <div>
           <h1 className="font-display text-4xl sm:text-6xl">{category.label}</h1>
           <p className="mt-1 text-xs uppercase tracking-[0.2em] text-muted">
-            {products.length} {products.length === 1 ? 'peça' : 'peças'}
+            {matches.length} {matches.length === 1 ? 'peça' : 'peças'}
           </p>
         </div>
       </header>
 
-      {products.length > 0 ? (
-        <div className="grid grid-cols-2 gap-6 py-10 sm:grid-cols-3 sm:gap-8 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+      {matches.length > 0 ? (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 py-10 sm:grid-cols-3 sm:gap-8 lg:grid-cols-4">
+          {matches.map(({ product, variant }) => (
+            <ProductCard key={product.id} product={product} variant={variant} />
           ))}
         </div>
       ) : (

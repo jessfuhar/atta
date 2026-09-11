@@ -3,11 +3,12 @@ import { Hero } from '../components/Hero';
 import { Categories } from '../components/Categories';
 import { ColorCategories } from '../components/ColorCategories';
 import { Favorites } from '../components/Favorites';
+import { Kits } from '../components/Kits';
 import { Editorial } from '../components/Editorial';
 import { Reveal } from '../components/Reveal';
 
 export function Home() {
-  const { products, categories, colorCategories, homeContent } = useSiteData();
+  const { products, categories, colorCategories, kits, homeContent } = useSiteData();
   const favoriteProducts = homeContent.favoriteProductIds
     .map((id) => products.find((p) => p.id === id))
     .filter((p): p is (typeof products)[number] => Boolean(p));
@@ -26,6 +27,10 @@ export function Home() {
 
       <Reveal className="pb-28 sm:pb-36">
         <Favorites title={homeContent.favoritesTitle} products={favoriteProducts} />
+      </Reveal>
+
+      <Reveal className="pb-28 sm:pb-36">
+        <Kits kits={kits} />
       </Reveal>
 
       <Reveal>

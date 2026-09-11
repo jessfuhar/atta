@@ -14,7 +14,7 @@ export function Favorites({ title, products }: FavoritesProps) {
     <section className="px-6 py-4 sm:px-10">
       <p className="mb-10 text-xs uppercase tracking-[0.3em] text-muted">{title}</p>
 
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-8">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

@@ -37,6 +37,24 @@ export interface ColorCategory {
   image?: { src: string; alt: string };
 }
 
+/** Referência a uma variante existente de um produto — kit nunca duplica dados de produto. */
+export interface KitItem {
+  productId: string;
+  color: string;
+}
+
+export interface Kit {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  active: boolean;
+  /** 1ª foto = capa, 2ª = hover, demais = galeria da página do kit (mesma convenção do produto). */
+  images: { src: string; alt: string }[];
+  items: KitItem[];
+}
+
 export interface HomeContent {
   hero: Media & { headline: string; subline?: string };
   favoritesTitle: string;

@@ -51,7 +51,7 @@ export function ImageLibraryModal({ multiple, onClose, onSelect }: ImageLibraryM
             biblioteca assim que a publicação terminar.
           </p>
         ) : (
-          <div className="grid grid-cols-4 gap-2 overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4">
             {filtered.map((img) => (
               <button
                 key={img.src}

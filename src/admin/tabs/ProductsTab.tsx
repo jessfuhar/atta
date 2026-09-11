@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSiteData } from '../../data/siteData';
-import type { Product, ProductVariant } from '../../data/types';
+import type { HomeContent, Kit, Product, ProductVariant } from '../../data/types';
 import { ImageListEditor } from '../ImageListEditor';
 import { ImageThumb } from '../ImageThumb';
 import { Field, TextArea, TextInput } from '../Field';
@@ -11,7 +11,7 @@ import { uniqueSlug, slugify } from '../../lib/slug';
 import { useGithubAuth } from '../github/auth';
 import { publishChanges, type PublishStatus } from '../github/publish';
 import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
-import { serializeProducts } from '../github/serialize';
+import { serializeHome, serializeKits, serializeProducts } from '../github/serialize';
 import { imageExt, productImagePath, toPublicSrc } from '../github/images';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
@@ -73,9 +73,13 @@ function VariantEditor({
 }) {
   return (
     <div className="flex flex-col gap-3 border border-line p-3">
-      <div className="flex items-end gap-3">
+      <div className="flex flex-wrap items-end gap-3">
         <Field label="Cor">
-          <TextInput value={variant.color} onChange={(e) => onChange({ ...variant, color: e.target.value })} />
+          <TextInput
+            value={variant.color}
+            className="w-full sm:w-auto"
+            onChange={(e) => onChange({ ...variant, color: e.target.value })}
+          />
         </Field>
         <Field label="Hex">
           <div className="flex items-center gap-2">
@@ -83,12 +87,12 @@ function VariantEditor({
               type="color"
               value={/^#[0-9a-f]{6}$/i.test(variant.hex ?? '') ? (variant.hex as string) : '#111111'}
               onChange={(e) => onChange({ ...variant, hex: e.target.value })}
-              className="h-9 w-9 border border-line"
+              className="h-9 w-9 flex-none border border-line"
             />
             <TextInput
               value={variant.hex ?? ''}
               placeholder="#111111"
-              className="w-28"
+              className="w-24"
               onChange={(e) => onChange({ ...variant, hex: e.target.value })}
             />
           </div>
@@ -96,7 +100,7 @@ function VariantEditor({
         <button
           type="button"
           onClick={onRemove}
-          className="ml-auto border border-line px-2 py-1 text-[11px] uppercase tracking-[0.1em] text-muted"
+          className="border border-line px-2 py-1 text-[11px] uppercase tracking-[0.1em] text-muted sm:ml-auto"
         >
           Remover cor
         </button>
@@ -202,7 +206,7 @@ function ProductSummary({ product }: { product: Product }) {
 }
 
 export function ProductsTab() {
-  const { products, setProducts } = useSiteData();
+  const { products, setProducts, homeContent, setHomeContent, kits, setKits } = useSiteData();
   const { token } = useGithubAuth();
   const [creating, setCreating] = useState<Product | null>(null);
   const [createStatus, setCreateStatus] = useState<PublishStatus>('idle');
@@ -250,9 +254,56 @@ export function ProductsTab() {
     if (next !== products) publishList(next, `admin: reordena produtos`);
   }
 
-  function removeProduct(product: Product) {
-    if (!confirm(`Excluir "${product.name}"? Essa ação publica no GitHub e não pode ser desfeita.`)) return;
-    publishList(products.filter((p) => p.id !== product.id), `admin: remove produto ${product.name}`);
+  async function removeProduct(product: Product) {
+    const affectedKits = kits.filter((k) => k.items.some((i) => i.productId === product.id));
+    const isFavorite = homeContent.favoriteProductIds.includes(product.id);
+
+    let warning = `Excluir "${product.name}"? Essa ação publica no GitHub e não pode ser desfeita.`;
+    if (isFavorite) warning += `\n\nSerá removido também de "Preferidos".`;
+    if (affectedKits.length > 0) {
+      warning += `\n\nUsado nos kits: ${affectedKits.map((k) => k.name).join(', ')}. Será removido de cada kit (kits que ficarem sem peças serão desativados).`;
+    }
+    if (!confirm(warning)) return;
+
+    const nextProducts = products.filter((p) => p.id !== product.id);
+    const nextHome: HomeContent | null = isFavorite
+      ? { ...homeContent, favoriteProductIds: homeContent.favoriteProductIds.filter((id) => id !== product.id) }
+      : null;
+    const nextKits: Kit[] | null =
+      affectedKits.length > 0
+        ? kits.map((k) => {
+            if (!k.items.some((i) => i.productId === product.id)) return k;
+            const items = k.items.filter((i) => i.productId !== product.id);
+            return { ...k, items, active: items.length > 0 ? k.active : false };
+          })
+        : null;
+
+    setBusy(true);
+    setListError(null);
+    setFeedbackMessage(null);
+    try {
+      await publishChanges({
+        token: token!,
+        files: [
+          { path: 'src/data/products.ts', content: serializeProducts(nextProducts) },
+          ...(nextHome ? [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }] : []),
+          ...(nextKits ? [{ path: 'src/data/kits.ts', content: serializeKits(nextKits) }] : []),
+        ],
+        images: [],
+        message: `admin: remove produto ${product.name}`,
+        onStatus: setListStatus,
+      });
+      setProducts(nextProducts);
+      if (nextHome) setHomeContent(nextHome);
+      if (nextKits) setKits(nextKits);
+      setListStatus('idle');
+      showFeedback(PUBLISH_SUCCESS_MESSAGE);
+    } catch (e) {
+      setListStatus('error');
+      setListError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function saveCreate() {
@@ -295,8 +346,8 @@ export function ProductsTab() {
       {feedbackMessage && <p className="text-sm text-emerald-600">{feedbackMessage}</p>}
 
       {products.map((product, i) => (
-        <div key={product.id} className="flex items-start gap-2">
-          <div className="mt-4 flex flex-col gap-1">
+        <div key={product.id} className="flex flex-col gap-2 sm:flex-row sm:items-start">
+          <div className="flex gap-1 sm:mt-4 sm:flex-col">
             <button type="button" disabled={i === 0 || busy} onClick={() => reorder(i, -1)} className="px-1 text-xs disabled:opacity-30">▲</button>
             <button type="button" disabled={i === products.length - 1 || busy} onClick={() => reorder(i, 1)} className="px-1 text-xs disabled:opacity-30">▼</button>
           </div>
@@ -328,7 +379,7 @@ export function ProductsTab() {
             type="button"
             disabled={busy}
             onClick={() => removeProduct(product)}
-            className="mt-4 border border-line px-2 py-1.5 text-[11px] uppercase tracking-[0.1em] text-muted disabled:opacity-40"
+            className="w-fit border border-line px-2 py-1.5 text-[11px] uppercase tracking-[0.1em] text-muted disabled:opacity-40 sm:mt-4"
           >
             Excluir
           </button>

@@ -1,4 +1,4 @@
-import type { CategoryEntry, ColorCategory, HomeContent, Product } from '../../data/types';
+import type { CategoryEntry, ColorCategory, HomeContent, Kit, Product } from '../../data/types';
 
 export function serializeProducts(products: Product[]) {
   return `import type { Category, Product } from './types';\n\nexport const products: Product[] = ${JSON.stringify(products, null, 2)};\n\nexport const getProductById = (id: string) => products.find((p) => p.id === id);\nexport const getProductsByCategory = (category: Category) =>\n  products.filter((p) => p.category === category);\n`;
@@ -10,6 +10,10 @@ export function serializeCategories(categories: CategoryEntry[]) {
 
 export function serializeColorCategories(colorCategories: ColorCategory[]) {
   return `import type { ColorCategory } from './types';\n\nexport const colorCategories: ColorCategory[] = ${JSON.stringify(colorCategories, null, 2)};\n`;
+}
+
+export function serializeKits(kits: Kit[]) {
+  return `import type { Kit } from './types';\n\nexport const kits: Kit[] = ${JSON.stringify(kits, null, 2)};\n`;
 }
 
 export function serializeHome(home: HomeContent) {

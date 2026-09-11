@@ -17,7 +17,7 @@ export function EditableCard<T>({ title, value, onSave, renderSummary, renderFor
 
   return (
     <div className="border border-line p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="font-display text-lg">{title}</p>
         <EditActions editing={editing} dirty={dirty} status={status} saving={saving} onEdit={edit} onSave={save} onCancel={cancel} />
       </div>
