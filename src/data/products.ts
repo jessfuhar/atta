@@ -230,31 +230,6 @@ export const products: Product[] = [
     ]
   },
   {
-    "id": "jaqueta-essential",
-    "slug": "jaqueta-essential",
-    "name": "Jaqueta Essential",
-    "category": "jaquetas",
-    "price": 379,
-    "sizes": [
-      "P",
-      "M",
-      "G"
-    ],
-    "description": "Jaqueta corta-vento com zíper frontal.",
-    "variants": [
-      {
-        "color": "Preto",
-        "hex": "#111111",
-        "images": [
-          {
-            "src": "/images/products/jaqueta-essential/preto-01.svg",
-            "alt": "Jaqueta Essential preta, vista frontal"
-          }
-        ]
-      }
-    ]
-  },
-  {
     "id": "novo-produto",
     "slug": "novo-produto",
     "name": "Top Essential Alça Fina ",
