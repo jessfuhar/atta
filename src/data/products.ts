@@ -45,8 +45,20 @@ export const products: Product[] = [
         "hex": "#000000",
         "images": [
           {
-            "src": "/images/products/legging-essential/branco-01.svg",
-            "alt": "Legging Essential branca, vista frontal"
+            "src": "/images/products/legging-essential/preto-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/legging-essential/preto-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/legging-essential/preto-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/legging-essential/preto-4.png",
+            "alt": ""
           }
         ]
       }
