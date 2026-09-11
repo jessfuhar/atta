@@ -478,6 +478,43 @@ export const products: Product[] = [
         ]
       }
     ]
+  },
+  {
+    "id": "novo-produto-3",
+    "slug": "novo-produto-3",
+    "name": "Short Cós Cruzado ",
+    "category": "shorts",
+    "price": 89.9,
+    "sizes": [
+      "P",
+      "M",
+      "G"
+    ],
+    "description": "",
+    "variants": [
+      {
+        "color": "Preto",
+        "hex": "#111111",
+        "images": [
+          {
+            "src": "/images/products/novo-produto-3/preto-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-3/preto-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-3/preto-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto-3/preto-4.png",
+            "alt": ""
+          }
+        ]
+      }
+    ]
   }
 ];
 
