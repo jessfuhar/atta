@@ -230,6 +230,24 @@ export const products: Product[] = [
             "alt": ""
           }
         ]
+      },
+      {
+        "color": "Preto",
+        "hex": "#111111",
+        "images": [
+          {
+            "src": "/images/products/novo-produto/preto-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto/preto-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/novo-produto/preto-3.png",
+            "alt": ""
+          }
+        ]
       }
     ]
   },
