@@ -12,9 +12,9 @@ export const homeContent: HomeContent = {
       "titleEnabled": false,
       "subtitle": "Feita com cuidado. Para você usar a vontade.",
       "subtitleEnabled": true,
-      "whatsapp": "00000000000",
+      "whatsapp": "(41)974004404",
       "whatsappEnabled": true,
-      "instagram": "@atta",
+      "instagram": "@use.atta",
       "instagramEnabled": true
     }
   },
