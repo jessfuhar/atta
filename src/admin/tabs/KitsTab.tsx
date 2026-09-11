@@ -193,7 +193,7 @@ function KitForm({ draft, setDraft }: { draft: Kit; setDraft: (updater: Kit | ((
         <label className="flex w-fit items-center gap-2 text-xs uppercase tracking-[0.12em]">
           <input
             type="checkbox"
-            checked={draft.showOnHome}
+            checked={draft.showOnHome ?? false}
             onChange={(e) => setDraft({ ...draft, showOnHome: e.target.checked })}
           />
           Mostrar na Home

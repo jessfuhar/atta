@@ -50,8 +50,8 @@ export interface Kit {
   description: string;
   price: number;
   active: boolean;
-  /** Aparece também na vitrine de kits em destaque da Home (além da página /kits). */
-  showOnHome: boolean;
+  /** Aparece também na vitrine de kits em destaque da Home (além da página /kits). Ausente = false (kits antigos). */
+  showOnHome?: boolean;
   /** 1ª foto = capa, 2ª = hover, demais = galeria da página do kit (mesma convenção do produto). */
   images: { src: string; alt: string }[];
   items: KitItem[];
