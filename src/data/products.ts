@@ -122,7 +122,7 @@ export const products: Product[] = [
   {
     "id": "short-essential",
     "slug": "short-essential",
-    "name": "Short Essential com Bolso",
+    "name": "Short Essential ",
     "category": "shorts",
     "price": 89,
     "sizes": [
