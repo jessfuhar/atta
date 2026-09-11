@@ -305,7 +305,7 @@ export const products: Product[] = [
         ]
       },
       {
-        "color": "Nova cor",
+        "color": "Preto",
         "hex": "#111111",
         "images": [
           {
