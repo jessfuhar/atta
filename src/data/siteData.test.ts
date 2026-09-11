@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { isValidHome } from './siteData';
+import { computeKitPricing, isValidHome } from './siteData';
 import { homeContent } from './home';
+import type { Product } from './types';
 
 /**
  * Regressão: um rascunho salvo no localStorage antes da mudança de estrutura do Hero
@@ -28,5 +29,29 @@ describe('isValidHome', () => {
     expect(isValidHome(undefined)).toBe(false);
     expect(isValidHome(null)).toBe(false);
     expect(isValidHome({})).toBe(false);
+  });
+});
+
+function product(id: string, price: number): Product {
+  return { id, slug: id, name: id, category: 'x', price, sizes: [], variants: [], description: '' };
+}
+
+describe('computeKitPricing', () => {
+  const products = [product('a', 85), product('b', 85), product('c', 85)];
+
+  it('soma os preços atuais dos produtos do kit — nunca um valor salvo à parte', () => {
+    const kit = { price: 240, items: [{ productId: 'a', color: 'Preto' }, { productId: 'b', color: 'Preto' }, { productId: 'c', color: 'Preto' }] };
+    expect(computeKitPricing(kit, products)).toEqual({ original: 255, final: 240, hasDiscount: true });
+  });
+
+  it('acompanha a mudança de preço do produto automaticamente (sem duplicar o valor)', () => {
+    const kit = { price: 240, items: [{ productId: 'a', color: 'Preto' }] };
+    const raised = [product('a', 120), product('b', 85), product('c', 85)];
+    expect(computeKitPricing(kit, raised).original).toBe(120);
+  });
+
+  it('não mostra desconto falso quando o preço do kit não é menor que a soma', () => {
+    const kit = { price: 260, items: [{ productId: 'a', color: 'Preto' }, { productId: 'b', color: 'Preto' }] };
+    expect(computeKitPricing(kit, products).hasDiscount).toBe(false);
   });
 });

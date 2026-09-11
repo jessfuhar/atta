@@ -1,11 +1,14 @@
 import { useSiteData } from '../../data/siteData';
 import type { CategoryEntry } from '../../data/types';
+import { ImagePicker } from '../ImagePicker';
 import { Field, TextInput } from '../Field';
 import { EditableCard } from '../EditableCard';
+import type { DraftImageItem } from '../DraftImage';
 import { uniqueSlug } from '../../lib/slug';
 import { useGithubAuth } from '../github/auth';
 import { publishChanges } from '../github/publish';
 import { serializeCategories } from '../github/serialize';
+import { categoryImagePath, imageExt, toPublicSrc } from '../github/images';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -23,21 +26,31 @@ export function CategoriesTab() {
     <div className="flex flex-col gap-3">
       <p className="text-xs text-muted">
         Toda categoria usada por algum produto aparece no site automaticamente, mesmo sem cadastrar aqui.
-        Use esta lista só para definir a ordem de exibição e o nome mostrado.
+        Use esta lista para definir nome, imagem e ordem de exibição (inclusive da categoria "Kits").
       </p>
 
       <EditableCard<CategoryEntry[]>
         title="Categorias por tipo de peça"
         value={categories}
         onSave={async (draft, report) => {
+          const images: { path: string; file: File }[] = [];
+          const cleaned = draft.map((category) => {
+            const img = category.image as DraftImageItem | undefined;
+            if (img?.file) {
+              const path = categoryImagePath(category.id, imageExt(img.file));
+              images.push({ path, file: img.file });
+              return { ...category, image: { src: toPublicSrc(path), alt: img.alt } };
+            }
+            return category;
+          });
           await publishChanges({
             token: token!,
-            files: [{ path: 'src/data/categories.ts', content: serializeCategories(draft) }],
-            images: [],
+            files: [{ path: 'src/data/categories.ts', content: serializeCategories(cleaned) }],
+            images,
             message: 'admin: atualiza categorias de peça',
             onStatus: report,
           });
-          setCategories(draft);
+          setCategories(cleaned);
         }}
         renderSummary={(list) => (
           <ul className="flex flex-col gap-1 text-sm">
@@ -51,7 +64,7 @@ export function CategoriesTab() {
         renderForm={(draft, setDraft) => (
           <div className="flex flex-col gap-4">
             <p className="text-xs text-muted">
-              O slug ({'<'}id{'>'}) fica fixo depois de criado — só o nome exibido pode mudar livremente.
+              O slug ({'<'}id{'>'}) fica fixo depois de criado — só o nome exibido e a imagem podem mudar livremente.
             </p>
 
             {draft.map((category, i) => (
@@ -70,6 +83,7 @@ export function CategoriesTab() {
                     </button>
                   </div>
                 </div>
+
                 <div className="max-w-xs">
                   <Field label="Nome exibido">
                     <TextInput
@@ -82,6 +96,25 @@ export function CategoriesTab() {
                     />
                   </Field>
                 </div>
+
+                <ImagePicker
+                  label="Imagem da categoria"
+                  value={{
+                    src: category.image?.src ?? '',
+                    alt: category.image?.alt ?? '',
+                    file: (category.image as DraftImageItem | undefined)?.file,
+                  }}
+                  onChange={(picked) => {
+                    const next = [...draft];
+                    if (!picked.src) {
+                      next[i] = { ...category, image: undefined };
+                    } else {
+                      const image: DraftImageItem = { src: picked.src, alt: category.label, file: picked.file };
+                      next[i] = { ...category, image };
+                    }
+                    setDraft(next);
+                  }}
+                />
               </div>
             ))}
 

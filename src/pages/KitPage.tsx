@@ -10,7 +10,7 @@ interface KitPageProps {
 }
 
 export function KitPage({ slug }: KitPageProps) {
-  const { kits, resolveKitItem } = useSiteData();
+  const { kits, resolveKitItem, getKitPricing } = useSiteData();
   const kit = kits.find((k) => k.slug === slug);
 
   if (!kit) {
@@ -31,7 +31,15 @@ export function KitPage({ slug }: KitPageProps) {
 
         <div>
           <h1 className="font-display text-3xl sm:text-4xl">{kit.name}</h1>
-          <p className="mt-3 text-lg">{formatPrice(kit.price)}</p>
+          {(() => {
+            const { original, final, hasDiscount } = getKitPricing(kit);
+            return (
+              <div className="mt-3">
+                {hasDiscount && <p className="text-sm text-muted line-through">De {formatPrice(original)}</p>}
+                <p className="text-2xl font-medium sm:text-3xl">{formatPrice(final)}</p>
+              </div>
+            );
+          })()}
           {kit.description && <p className="mt-6 max-w-md text-sm text-muted">{kit.description}</p>}
         </div>
       </div>

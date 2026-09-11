@@ -32,5 +32,9 @@ export const categories: CategoryEntry[] = [
       "src": "/images/categories/croppeds.svg",
       "alt": "Categoria croppeds"
     }
+  },
+  {
+    "id": "kits",
+    "label": "Kits"
   }
 ];

@@ -21,20 +21,20 @@ export function Home() {
         announcement={homeContent.hero.announcement}
       />
 
-      <Reveal className="pb-10 sm:pb-14">
+      <Reveal className="pb-8 sm:pb-10">
         <Categories categories={resolvedCategories} />
       </Reveal>
 
-      <Reveal className="pb-14 sm:pb-20">
+      <Reveal className="pb-16 sm:pb-24">
         <ColorCategories colorCategories={colorCategories} />
       </Reveal>
 
       <Reveal className="pb-28 sm:pb-36">
-        <Favorites title={homeContent.favoritesTitle} products={favoriteProducts} />
+        <Kits kits={kits} />
       </Reveal>
 
       <Reveal className="pb-28 sm:pb-36">
-        <Kits kits={kits} />
+        <Favorites title={homeContent.favoritesTitle} products={favoriteProducts} />
       </Reveal>
 
       <Reveal>

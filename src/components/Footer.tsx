@@ -1,5 +1,6 @@
 import { withBase, LOGO_BLACK } from '../lib/assets';
 import { Link } from '../lib/router';
+import { categoryHref } from '../lib/categoryHref';
 import { useSiteData } from '../data/siteData';
 
 export function Footer() {
@@ -13,7 +14,7 @@ export function Footer() {
 
         <nav className="flex flex-wrap gap-6 text-xs uppercase tracking-[0.12em] text-muted">
           {categories.map((category) => (
-            <Link key={category.id} to={`/categoria/${category.id}`} className="hover:text-ink">
+            <Link key={category.id} to={categoryHref(category.id)} className="hover:text-ink">
               {category.label}
             </Link>
           ))}

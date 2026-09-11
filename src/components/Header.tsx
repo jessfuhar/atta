@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useScrolled } from '../hooks/useScrolled';
 import { withBase, LOGO_WHITE, LOGO_BLACK } from '../lib/assets';
 import { Link } from '../lib/router';
+import { categoryHref } from '../lib/categoryHref';
 import { useSiteData } from '../data/siteData';
 
 export function Header() {
@@ -30,7 +31,7 @@ export function Header() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/categoria/${category.id}`}
+              to={categoryHref(category.id)}
               className="transition-opacity hover:opacity-60"
             >
               {category.label}
@@ -57,7 +58,7 @@ export function Header() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/categoria/${category.id}`}
+              to={categoryHref(category.id)}
               onClick={() => setMenuOpen(false)}
               className="font-display text-4xl"
             >

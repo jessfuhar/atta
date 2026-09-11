@@ -32,6 +32,7 @@ function emptyKit(existingIds: string[]): Kit {
     description: '',
     price: 0,
     active: true,
+    showOnHome: false,
     images: [],
     items: [],
   };
@@ -152,7 +153,8 @@ function ItemsEditor({
 }
 
 function KitForm({ draft, setDraft }: { draft: Kit; setDraft: (updater: Kit | ((k: Kit) => Kit)) => void }) {
-  const { products } = useSiteData();
+  const { products, getKitPricing } = useSiteData();
+  const { original, hasDiscount } = getKitPricing(draft);
 
   return (
     <div className="flex flex-col gap-4">
@@ -160,27 +162,43 @@ function KitForm({ draft, setDraft }: { draft: Kit; setDraft: (updater: Kit | ((
         <Field label="Nome">
           <TextInput value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
         </Field>
-        <Field label="Preço do kit (R$)">
-          <TextInput
-            type="number"
-            value={draft.price}
-            onChange={(e) => setDraft({ ...draft, price: Number(e.target.value) || 0 })}
-          />
-        </Field>
+        <div>
+          <Field label="Preço do kit (R$)">
+            <TextInput
+              type="number"
+              value={draft.price}
+              onChange={(e) => setDraft({ ...draft, price: Number(e.target.value) || 0 })}
+            />
+          </Field>
+          <p className="mt-1 text-[11px] text-muted">
+            Valor normal (soma das peças, calculado automaticamente): {formatPrice(original)}
+            {!hasDiscount && draft.items.length > 0 && ' — igual ou menor que o do kit, "De" não aparece no site'}
+          </p>
+        </div>
       </div>
 
       <Field label="Descrição">
         <TextArea value={draft.description} rows={2} onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
       </Field>
 
-      <label className="flex w-fit items-center gap-2 text-xs uppercase tracking-[0.12em]">
-        <input
-          type="checkbox"
-          checked={draft.active}
-          onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
-        />
-        Kit ativo (visível no site)
-      </label>
+      <div className="flex flex-wrap gap-6">
+        <label className="flex w-fit items-center gap-2 text-xs uppercase tracking-[0.12em]">
+          <input
+            type="checkbox"
+            checked={draft.active}
+            onChange={(e) => setDraft({ ...draft, active: e.target.checked })}
+          />
+          Kit ativo (visível no site)
+        </label>
+        <label className="flex w-fit items-center gap-2 text-xs uppercase tracking-[0.12em]">
+          <input
+            type="checkbox"
+            checked={draft.showOnHome}
+            onChange={(e) => setDraft({ ...draft, showOnHome: e.target.checked })}
+          />
+          Mostrar na Home
+        </label>
+      </div>
 
       <div>
         <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Fotos do kit</p>
@@ -205,6 +223,7 @@ function KitSummary({ kit, products }: { kit: Kit; products: Product[] }) {
       <div>
         <p className="text-sm">
           {kit.name} {!kit.active && <span className="text-xs text-muted">(inativo)</span>}
+          {kit.showOnHome && <span className="text-xs text-muted"> · na Home</span>}
         </p>
         <p className="text-xs text-muted">
           {formatPrice(kit.price)} · {kit.items.length} peça(s):{' '}

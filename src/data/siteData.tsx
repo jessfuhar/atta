@@ -71,6 +71,22 @@ export interface ColorMatch {
   variant: ProductVariant;
 }
 
+export interface KitPricing {
+  original: number;
+  final: number;
+  hasDiscount: boolean;
+}
+
+/** Soma os preços atuais dos produtos do kit — nunca armazenado, sempre recalculado. Sem "falso desconto" quando o preço do kit não é menor. */
+export function computeKitPricing(kit: Pick<Kit, 'price' | 'items'>, products: Product[]): KitPricing {
+  let original = 0;
+  for (const item of kit.items) {
+    const product = products.find((p) => p.id === item.productId);
+    if (product) original += product.price;
+  }
+  return { original, final: kit.price, hasDiscount: original > kit.price };
+}
+
 interface SiteDataContextValue {
   products: Product[];
   categories: CategoryEntry[];
@@ -87,6 +103,8 @@ interface SiteDataContextValue {
   getCategoryVariants: (category: Category) => ColorMatch[];
   /** Resolve um item de kit para o produto e a variante referenciados — null se algum não existir mais. */
   resolveKitItem: (item: { productId: string; color: string }) => ColorMatch | null;
+  /** Soma os preços atuais dos produtos do kit (nunca armazenado — sempre recalculado a partir dos produtos). */
+  getKitPricing: (kit: Pick<Kit, 'price' | 'items'>) => KitPricing;
   setProducts: (products: Product[]) => void;
   setCategories: (categories: CategoryEntry[]) => void;
   setColorCategories: (colorCategories: ColorCategory[]) => void;
@@ -156,6 +174,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
         }
         return matches;
       },
+      getKitPricing: (kit) => computeKitPricing(kit, products),
       resolveKitItem: (item) => {
         const product = products.find((p) => p.id === item.productId);
         if (!product) return null;
