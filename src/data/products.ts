@@ -172,31 +172,6 @@ export const products: Product[] = [
     ]
   },
   {
-    "id": "macacao-essential",
-    "slug": "macacao-essential",
-    "name": "Macacão Essential",
-    "category": "macacoes",
-    "price": 329,
-    "sizes": [
-      "P",
-      "M",
-      "G"
-    ],
-    "description": "Macacão de compressão, decote V.",
-    "variants": [
-      {
-        "color": "Preto",
-        "hex": "#111111",
-        "images": [
-          {
-            "src": "/images/products/macacao-essential/preto-01.svg",
-            "alt": "Macacão Essential preto, vista frontal"
-          }
-        ]
-      }
-    ]
-  },
-  {
     "id": "jaqueta-essential",
     "slug": "jaqueta-essential",
     "name": "Jaqueta Essential",
