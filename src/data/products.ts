@@ -127,7 +127,7 @@ export const products: Product[] = [
       },
       {
         "color": "Preto",
-        "hex": "#111111",
+        "hex": "#000000",
         "images": [
           {
             "src": "/images/products/top-essential/preto-1.png",
@@ -139,6 +139,28 @@ export const products: Product[] = [
           },
           {
             "src": "/images/products/top-essential/preto-3.png",
+            "alt": ""
+          }
+        ]
+      },
+      {
+        "color": "Azul Royal",
+        "hex": "#13177c",
+        "images": [
+          {
+            "src": "/images/products/top-essential/azul-royal-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/azul-royal-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/azul-royal-3.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/azul-royal-4.png",
             "alt": ""
           }
         ]
