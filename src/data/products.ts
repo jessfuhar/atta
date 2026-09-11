@@ -86,6 +86,24 @@ export const products: Product[] = [
             "alt": ""
           }
         ]
+      },
+      {
+        "color": "Preto",
+        "hex": "#111111",
+        "images": [
+          {
+            "src": "/images/products/top-essential/preto-1.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/preto-2.png",
+            "alt": ""
+          },
+          {
+            "src": "/images/products/top-essential/preto-3.png",
+            "alt": ""
+          }
+        ]
       }
     ]
   },
