@@ -12,6 +12,19 @@
   --font-sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
 }
 
+:root {
+  /* Margem lateral segura: nunca menor que o padding base, cresce com o notch/curvatura da tela. */
+  --safe-pl: max(1.5rem, env(safe-area-inset-left, 0px));
+  --safe-pr: max(1.5rem, env(safe-area-inset-right, 0px));
+}
+
+@media (min-width: 640px) {
+  :root {
+    --safe-pl: max(2.5rem, env(safe-area-inset-left, 0px));
+    --safe-pr: max(2.5rem, env(safe-area-inset-right, 0px));
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-line);
@@ -51,6 +64,11 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+@utility safe-px {
+  padding-left: var(--safe-pl);
+  padding-right: var(--safe-pr);
 }
 
 @utility no-scrollbar {

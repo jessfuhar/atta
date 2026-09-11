@@ -26,7 +26,7 @@ export interface Product {
 export interface CategoryEntry {
   id: Category;
   label: string;
-  image: { src: string; alt: string };
+  image?: { src: string; alt: string };
 }
 
 /** Categoria por cor — independente da categoria de peça. Vincula produtos pela cor das variantes (sem duplicar dados). */
@@ -55,8 +55,27 @@ export interface Kit {
   items: KitItem[];
 }
 
+/** Texto/anúncio sobre o Hero — cada campo liga/desliga independente. */
+export interface HeroAnnouncement {
+  enabled: boolean;
+  title: string;
+  titleEnabled: boolean;
+  subtitle: string;
+  subtitleEnabled: boolean;
+  /** Só o número por enquanto (sem link) — estrutura pronta para virar link no futuro. */
+  whatsapp: string;
+  whatsappEnabled: boolean;
+  instagram: string;
+  instagramEnabled: boolean;
+}
+
 export interface HomeContent {
-  hero: Media & { headline: string; subline?: string };
+  hero: {
+    /** Sempre usada no desktop; também é o fallback no mobile quando `mobile` não é definida. */
+    desktop: { src: string; alt: string };
+    mobile?: { src: string; alt: string };
+    announcement: HeroAnnouncement;
+  };
   favoritesTitle: string;
   favoriteProductIds: string[];
   editorial: Media & { caption?: string };

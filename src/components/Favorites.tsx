@@ -11,7 +11,7 @@ export function Favorites({ title, products }: FavoritesProps) {
   if (products.length === 0) return null;
 
   return (
-    <section className="px-6 py-4 sm:px-10">
+    <section className="safe-px py-4">
       <p className="mb-10 text-xs uppercase tracking-[0.3em] text-muted">{title}</p>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-8">

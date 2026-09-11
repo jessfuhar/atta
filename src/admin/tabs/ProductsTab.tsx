@@ -8,6 +8,7 @@ import { EditableCard } from '../EditableCard';
 import { PublishStatusPill } from '../PublishStatusPill';
 import type { DraftImageItem } from '../DraftImage';
 import { uniqueSlug, slugify } from '../../lib/slug';
+import { formatPrice } from '../../lib/format';
 import { useGithubAuth } from '../github/auth';
 import { publishChanges, type PublishStatus } from '../github/publish';
 import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
@@ -198,7 +199,7 @@ function ProductSummary({ product }: { product: Product }) {
       <div>
         <p className="text-sm">{product.name}</p>
         <p className="text-xs text-muted">
-          {product.category || 'sem categoria'} · R$ {product.price} · {product.variants.length} cor(es)
+          {product.category || 'sem categoria'} · {formatPrice(product.price)} · {product.variants.length} cor(es)
         </p>
       </div>
     </div>

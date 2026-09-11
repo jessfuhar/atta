@@ -2,11 +2,21 @@ import type { HomeContent } from './types';
 
 export const homeContent: HomeContent = {
   "hero": {
-    "type": "image",
-    "src": "/images/collections/hero.jpg",
-    "alt": "",
-    "headline": "atta.",
-    "subline": "Feita com cuidado. Para você usar a vontade. "
+    "desktop": {
+      "src": "/images/collections/hero.jpg",
+      "alt": ""
+    },
+    "announcement": {
+      "enabled": true,
+      "title": "",
+      "titleEnabled": false,
+      "subtitle": "Feita com cuidado. Para você usar a vontade.",
+      "subtitleEnabled": true,
+      "whatsapp": "00000000000",
+      "whatsappEnabled": true,
+      "instagram": "@atta",
+      "instagramEnabled": true
+    }
   },
   "favoritesTitle": "Preferidos",
   "favoriteProductIds": [

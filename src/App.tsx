@@ -22,7 +22,7 @@ function App() {
 
   const categoryMatch = path.match(/^\/categoria\/([a-z0-9-]+)\/?$/);
   const colorMatch = path.match(/^\/cor\/([a-z0-9-]+)\/?$/);
-  const productMatch = path.match(/^\/produto\/([a-z0-9-]+)\/?$/);
+  const productMatch = path.match(/^\/produto\/([a-z0-9-]+)(?:\/(\d+))?\/?$/);
   const kitMatch = path.match(/^\/kit\/([a-z0-9-]+)\/?$/);
 
   return (
@@ -31,7 +31,11 @@ function App() {
 
       <main>
         {productMatch ? (
-          <ProductPage slug={productMatch[1]} />
+          <ProductPage
+            key={`${productMatch[1]}-${productMatch[2] ?? ''}`}
+            slug={productMatch[1]}
+            initialVariantIndex={productMatch[2] ? Number(productMatch[2]) : undefined}
+          />
         ) : kitMatch ? (
           <KitPage slug={kitMatch[1]} />
         ) : colorMatch ? (

@@ -1,15 +1,22 @@
 import { useSiteData } from '../../data/siteData';
-import type { HomeContent, Media } from '../../data/types';
+import type { HeroAnnouncement, HomeContent, Media } from '../../data/types';
 import { ImagePicker } from '../ImagePicker';
 import { ImageThumb } from '../ImageThumb';
 import { Field, TextInput } from '../Field';
 import { EditableCard } from '../EditableCard';
+import type { DraftImageItem } from '../DraftImage';
 import { useGithubAuth } from '../github/auth';
-import { publishChanges, type PublishStatus } from '../github/publish';
+import { publishChanges } from '../github/publish';
 import { serializeHome } from '../github/serialize';
 import { homeImagePath, imageExt, toPublicSrc } from '../github/images';
 
-type MediaDraft = Media & { headline?: string; subline?: string; caption?: string; poster?: string; file?: File };
+type MediaDraft = Media & { caption?: string; poster?: string; file?: File };
+
+interface HeroDraft {
+  desktop: DraftImageItem;
+  mobile: DraftImageItem;
+  announcement: HeroAnnouncement;
+}
 
 function MediaForm({
   media,
@@ -18,7 +25,7 @@ function MediaForm({
 }: {
   media: MediaDraft;
   onChange: (media: MediaDraft) => void;
-  captionField?: 'subline' | 'caption';
+  captionField?: 'caption';
 }) {
   const currentSrc = media.type === 'video' ? (media.poster ?? '') : media.src;
 
@@ -61,17 +68,11 @@ function MediaForm({
       </Field>
 
       {captionField && (
-        <Field label={captionField === 'subline' ? 'Subtítulo (hero)' : 'Legenda'}>
+        <Field label="Legenda">
           <TextInput
             value={media[captionField] ?? ''}
             onChange={(e) => onChange({ ...media, [captionField]: e.target.value })}
           />
-        </Field>
-      )}
-
-      {captionField === 'subline' && (
-        <Field label="Título (headline)">
-          <TextInput value={media.headline ?? ''} onChange={(e) => onChange({ ...media, headline: e.target.value })} />
         </Field>
       )}
     </div>
@@ -79,7 +80,7 @@ function MediaForm({
 }
 
 /** Resolve o arquivo pendente da mídia (se houver) para o caminho final publicado, e devolve o objeto limpo. */
-function resolveMedia(media: MediaDraft, kind: 'hero' | 'editorial') {
+function resolveMedia(media: MediaDraft, kind: 'editorial') {
   const images: { path: string; file: File }[] = [];
   const { file, ...clean } = media;
 
@@ -94,49 +95,204 @@ function resolveMedia(media: MediaDraft, kind: 'hero' | 'editorial') {
   return { media: clean, images };
 }
 
+/** Resolve uma imagem do Hero (desktop/mobile) para o caminho final publicado. */
+function resolveHeroImage(img: DraftImageItem, kind: 'hero-desktop' | 'hero-mobile') {
+  const images: { path: string; file: File }[] = [];
+  if (img.file) {
+    const path = homeImagePath(kind, imageExt(img.file));
+    images.push({ path, file: img.file });
+    return { image: { src: toPublicSrc(path), alt: img.alt }, images };
+  }
+  return { image: { src: img.src, alt: img.alt }, images };
+}
+
+function AnnouncementForm({
+  announcement,
+  onChange,
+}: {
+  announcement: HeroAnnouncement;
+  onChange: (announcement: HeroAnnouncement) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-4 border border-line p-3">
+      <label className="flex w-fit items-center gap-2 text-xs uppercase tracking-[0.12em]">
+        <input
+          type="checkbox"
+          checked={announcement.enabled}
+          onChange={(e) => onChange({ ...announcement, enabled: e.target.checked })}
+        />
+        Mostrar anúncio sobre o Hero
+      </label>
+
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-end gap-3">
+          <Field label="Título">
+            <TextInput
+              className="w-full sm:w-auto"
+              value={announcement.title}
+              onChange={(e) => onChange({ ...announcement, title: e.target.value })}
+            />
+          </Field>
+          <label className="flex items-center gap-2 pb-2 text-[11px] uppercase tracking-[0.1em] text-muted">
+            <input
+              type="checkbox"
+              checked={announcement.titleEnabled}
+              onChange={(e) => onChange({ ...announcement, titleEnabled: e.target.checked })}
+            />
+            Ativo
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <Field label="Texto complementar">
+            <TextInput
+              className="w-full sm:w-auto"
+              value={announcement.subtitle}
+              onChange={(e) => onChange({ ...announcement, subtitle: e.target.value })}
+            />
+          </Field>
+          <label className="flex items-center gap-2 pb-2 text-[11px] uppercase tracking-[0.1em] text-muted">
+            <input
+              type="checkbox"
+              checked={announcement.subtitleEnabled}
+              onChange={(e) => onChange({ ...announcement, subtitleEnabled: e.target.checked })}
+            />
+            Ativo
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <Field label="WhatsApp (só número, ainda sem link)">
+            <TextInput
+              className="w-full sm:w-auto"
+              value={announcement.whatsapp}
+              onChange={(e) => onChange({ ...announcement, whatsapp: e.target.value })}
+            />
+          </Field>
+          <label className="flex items-center gap-2 pb-2 text-[11px] uppercase tracking-[0.1em] text-muted">
+            <input
+              type="checkbox"
+              checked={announcement.whatsappEnabled}
+              onChange={(e) => onChange({ ...announcement, whatsappEnabled: e.target.checked })}
+            />
+            Ativo
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <Field label="Instagram (@)">
+            <TextInput
+              className="w-full sm:w-auto"
+              value={announcement.instagram}
+              onChange={(e) => onChange({ ...announcement, instagram: e.target.value })}
+            />
+          </Field>
+          <label className="flex items-center gap-2 pb-2 text-[11px] uppercase tracking-[0.1em] text-muted">
+            <input
+              type="checkbox"
+              checked={announcement.instagramEnabled}
+              onChange={(e) => onChange({ ...announcement, instagramEnabled: e.target.checked })}
+            />
+            Ativo
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HeroForm({ draft, setDraft }: { draft: HeroDraft; setDraft: (updater: HeroDraft | ((h: HeroDraft) => HeroDraft)) => void }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <ImagePicker
+          label="Imagem desktop — recomendado 1920×1080px (paisagem) ou maior"
+          value={draft.desktop}
+          onChange={(next) => setDraft({ ...draft, desktop: { src: next.src, alt: draft.desktop.alt, file: next.file } })}
+        />
+        <Field label="Texto alternativo (alt)">
+          <TextInput
+            className="mt-2 max-w-xs"
+            value={draft.desktop.alt}
+            onChange={(e) => setDraft({ ...draft, desktop: { ...draft.desktop, alt: e.target.value } })}
+          />
+        </Field>
+      </div>
+
+      <div>
+        <ImagePicker
+          label="Imagem mobile — recomendado 1080×1350px (retrato); opcional, usa a desktop se vazio"
+          value={draft.mobile}
+          onChange={(next) => setDraft({ ...draft, mobile: { src: next.src, alt: draft.mobile.alt, file: next.file } })}
+        />
+        <Field label="Texto alternativo (alt)">
+          <TextInput
+            className="mt-2 max-w-xs"
+            value={draft.mobile.alt}
+            onChange={(e) => setDraft({ ...draft, mobile: { ...draft.mobile, alt: e.target.value } })}
+          />
+        </Field>
+      </div>
+
+      <AnnouncementForm
+        announcement={draft.announcement}
+        onChange={(announcement) => setDraft({ ...draft, announcement })}
+      />
+    </div>
+  );
+}
+
 export function HomeTab() {
   const { homeContent, products, setHomeContent } = useSiteData();
   const { token } = useGithubAuth();
 
-  async function saveSection(
-    kind: 'hero' | 'editorial',
-    draft: MediaDraft,
-    label: string,
-    report: (s: PublishStatus) => void,
-  ) {
-    const { media, images } = resolveMedia(draft, kind);
-    const nextHome = { ...homeContent, [kind]: media } as HomeContent;
-    await publishChanges({
-      token: token!,
-      files: [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }],
-      images,
-      message: `admin: atualiza ${label}`,
-      onStatus: report,
-    });
-    setHomeContent(nextHome);
-  }
-
   return (
     <div className="flex flex-col gap-8">
-      <EditableCard<MediaDraft>
+      <EditableCard<HeroDraft>
         title="Hero"
-        value={homeContent.hero}
-        onSave={(hero, report) => saveSection('hero', hero, 'hero', report)}
+        value={{
+          desktop: homeContent.hero.desktop,
+          mobile: homeContent.hero.mobile ?? { src: '', alt: '' },
+          announcement: homeContent.hero.announcement,
+        }}
+        onSave={async (draft, report) => {
+          const desktop = resolveHeroImage(draft.desktop, 'hero-desktop');
+          const mobile = draft.mobile.src ? resolveHeroImage(draft.mobile, 'hero-mobile') : null;
+          const nextHome: HomeContent = {
+            ...homeContent,
+            hero: {
+              desktop: desktop.image,
+              mobile: mobile?.image,
+              announcement: draft.announcement,
+            },
+          };
+          await publishChanges({
+            token: token!,
+            files: [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }],
+            images: [...desktop.images, ...(mobile?.images ?? [])],
+            message: 'admin: atualiza hero',
+            onStatus: report,
+          });
+          setHomeContent(nextHome);
+        }}
         renderSummary={(hero) => (
           <div className="flex items-center gap-4">
             <div className="h-20 w-20 flex-none overflow-hidden border border-line bg-canvas-alt">
-              <ImageThumb
-                image={{ src: hero.type === 'video' ? (hero.poster ?? '') : hero.src, alt: hero.alt }}
-                className="h-full w-full object-cover"
-              />
+              <ImageThumb image={hero.desktop} className="h-full w-full object-cover" />
             </div>
-            <div>
-              <p className="text-sm">{hero.headline}</p>
-              {hero.subline && <p className="text-xs text-muted">{hero.subline}</p>}
+            <div className="text-sm text-muted">
+              <p>{hero.mobile.src ? 'Imagem mobile própria definida' : 'Sem imagem mobile — usa a desktop'}</p>
+              {hero.announcement.enabled ? (
+                <p className="mt-1">
+                  Anúncio ativo{hero.announcement.titleEnabled && hero.announcement.title ? `: “${hero.announcement.title}”` : ''}
+                </p>
+              ) : (
+                <p className="mt-1">Anúncio desativado</p>
+              )}
             </div>
           </div>
         )}
-        renderForm={(draft, setDraft) => <MediaForm media={draft} captionField="subline" onChange={setDraft} />}
+        renderForm={(draft, setDraft) => <HeroForm draft={draft} setDraft={setDraft} />}
       />
 
       <EditableCard<{ title: string; ids: string[] }>
@@ -239,7 +395,18 @@ export function HomeTab() {
       <EditableCard<MediaDraft>
         title="Bloco editorial final"
         value={homeContent.editorial}
-        onSave={(editorial, report) => saveSection('editorial', editorial, 'bloco editorial', report)}
+        onSave={async (editorial, report) => {
+          const { media, images } = resolveMedia(editorial, 'editorial');
+          const nextHome: HomeContent = { ...homeContent, editorial: media as HomeContent['editorial'] };
+          await publishChanges({
+            token: token!,
+            files: [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }],
+            images,
+            message: 'admin: atualiza bloco editorial',
+            onStatus: report,
+          });
+          setHomeContent(nextHome);
+        }}
         renderSummary={(editorial) => (
           <div className="flex items-center gap-4">
             <div className="h-20 w-20 flex-none overflow-hidden border border-line bg-canvas-alt">

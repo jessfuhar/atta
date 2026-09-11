@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSiteData } from '../data/siteData';
-import type { Product } from '../data/types';
+import { useSiteData, type ColorMatch } from '../data/siteData';
 import { ProductCard } from '../components/ProductCard';
 import { Link } from '../lib/router';
 
@@ -13,16 +12,21 @@ const SORT_LABELS: Record<SortOption, string> = {
   nome: 'Nome A-Z',
 };
 
+function normalize(value: string) {
+  return value.trim().toLowerCase();
+}
+
 interface CategoryPageProps {
   slug: string;
 }
 
+/** Cada cor de cada produto da categoria vira um card próprio — nenhuma cor fica escondida atrás da página do produto. */
 export function CategoryPage({ slug }: CategoryPageProps) {
-  const { categories, getProductsByCategory } = useSiteData();
-  const category = categories.find((c) => c.id === slug);
-  const allProducts = useMemo(
-    () => (category ? getProductsByCategory(category.id) : []),
-    [category, getProductsByCategory],
+  const { resolvedCategories, getCategoryVariants } = useSiteData();
+  const category = resolvedCategories.find((c) => c.id === slug);
+  const allVariants = useMemo(
+    () => (category ? getCategoryVariants(category.id) : []),
+    [category, getCategoryVariants],
   );
 
   const [sort, setSort] = useState<SortOption>('relevancia');
@@ -33,29 +37,33 @@ export function CategoryPage({ slug }: CategoryPageProps) {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const availableSizes = useMemo(
-    () => [...new Set(allProducts.flatMap((p) => p.sizes))],
-    [allProducts],
+    () => [...new Set(allVariants.flatMap(({ product }) => product.sizes))],
+    [allVariants],
   );
   const availableColors = useMemo(() => {
-    const map = new Map<string, string | undefined>();
-    allProducts.forEach((p) => p.variants.forEach((v) => map.set(v.color, v.hex)));
+    const map = new Map<string, { label: string; hex: string | undefined }>();
+    for (const { variant } of allVariants) {
+      const key = normalize(variant.color);
+      if (!map.has(key)) map.set(key, { label: variant.color.trim(), hex: variant.hex });
+    }
     return [...map.entries()];
-  }, [allProducts]);
+  }, [allVariants]);
 
-  const filteredProducts = useMemo(() => {
+  const filteredVariants = useMemo(() => {
     const min = priceMin ? Number(priceMin) : undefined;
     const max = priceMax ? Number(priceMax) : undefined;
+    const selectedColors = colors;
 
-    return allProducts.filter((product) => {
+    return allVariants.filter(({ product, variant }) => {
       if (sizes.length > 0 && !product.sizes.some((s) => sizes.includes(s))) return false;
-      if (colors.length > 0 && !product.variants.some((v) => colors.includes(v.color))) return false;
+      if (selectedColors.length > 0 && !selectedColors.includes(normalize(variant.color))) return false;
       if (min !== undefined && product.price < min) return false;
       if (max !== undefined && product.price > max) return false;
       return true;
     });
-  }, [allProducts, sizes, colors, priceMin, priceMax]);
+  }, [allVariants, sizes, colors, priceMin, priceMax]);
 
-  const sortedProducts = useMemo(() => sortProducts(filteredProducts, sort), [filteredProducts, sort]);
+  const sortedVariants = useMemo(() => sortVariants(filteredVariants, sort), [filteredVariants, sort]);
 
   const hasActiveFilters = sizes.length > 0 || colors.length > 0 || priceMin !== '' || priceMax !== '';
 
@@ -68,7 +76,7 @@ export function CategoryPage({ slug }: CategoryPageProps) {
 
   if (!category) {
     return (
-      <div className="mx-auto max-w-7xl px-6 pb-28 pt-40 text-center sm:px-10">
+      <div className="mx-auto max-w-7xl safe-px pb-28 pt-40 text-center">
         <p className="font-display text-3xl">Categoria não encontrada.</p>
         <Link to="/" className="mt-6 inline-block border-b border-ink pb-1 text-sm uppercase tracking-[0.12em]">
           Voltar para a home
@@ -78,15 +86,15 @@ export function CategoryPage({ slug }: CategoryPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 pb-28 pt-28 sm:px-10 sm:pt-36">
+    <div className="mx-auto max-w-7xl safe-px pb-28 pt-28 sm:pt-36">
       <header className="border-b border-line pb-8">
         <h1 className="font-display text-4xl sm:text-6xl">{category.label}</h1>
         <p className="mt-3 text-xs uppercase tracking-[0.2em] text-muted">
-          {sortedProducts.length} {sortedProducts.length === 1 ? 'peça' : 'peças'}
+          {sortedVariants.length} {sortedVariants.length === 1 ? 'peça' : 'peças'}
         </p>
       </header>
 
-      <div className="flex items-center justify-between gap-4 py-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 py-6">
         <button
           type="button"
           onClick={() => setFiltersOpen(true)}
@@ -95,12 +103,12 @@ export function CategoryPage({ slug }: CategoryPageProps) {
           Filtrar{hasActiveFilters ? ` (${sizes.length + colors.length})` : ''}
         </button>
 
-        <label className="ml-auto flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-muted">
-          Ordenar por
+        <label className="flex min-w-0 flex-1 items-center justify-end gap-2 text-xs uppercase tracking-[0.12em] text-muted sm:ml-auto sm:flex-none">
+          <span className="hidden sm:inline">Ordenar por</span>
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="border border-line bg-canvas px-3 py-2 text-ink"
+            className="min-w-0 max-w-full border border-line bg-canvas px-3 py-2 text-ink"
           >
             {(Object.keys(SORT_LABELS) as SortOption[]).map((option) => (
               <option key={option} value={option}>
@@ -122,6 +130,7 @@ export function CategoryPage({ slug }: CategoryPageProps) {
             priceMax={priceMax}
             onToggleSize={(s) => setSizes(toggle(sizes, s))}
             onToggleColor={(c) => setColors(toggle(colors, c))}
+            onClearColors={() => setColors([])}
             onPriceMinChange={setPriceMin}
             onPriceMaxChange={setPriceMax}
             onClear={clearFilters}
@@ -129,10 +138,16 @@ export function CategoryPage({ slug }: CategoryPageProps) {
           />
         </aside>
 
-        {sortedProducts.length > 0 ? (
+        {sortedVariants.length > 0 ? (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-8 lg:grid-cols-4">
-            {sortedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {sortedVariants.map(({ product, variant }) => (
+              <ProductCard
+                key={`${product.id}-${variant.color}`}
+                product={product}
+                variant={variant}
+                showVariantColor
+                to={`/produto/${product.slug}/${product.variants.indexOf(variant)}`}
+              />
             ))}
           </div>
         ) : (
@@ -143,7 +158,7 @@ export function CategoryPage({ slug }: CategoryPageProps) {
       {filtersOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:hidden">
           <div className="absolute inset-0 bg-ink/40" onClick={() => setFiltersOpen(false)} />
-          <div className="relative max-h-[85vh] w-full overflow-y-auto bg-canvas px-6 pb-8 pt-6">
+          <div className="relative max-h-[85vh] w-full overflow-y-auto bg-canvas safe-px pb-8 pt-6">
             <div className="mb-6 flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.2em] text-muted">Filtros</p>
               <button
@@ -164,6 +179,7 @@ export function CategoryPage({ slug }: CategoryPageProps) {
               priceMax={priceMax}
               onToggleSize={(s) => setSizes(toggle(sizes, s))}
               onToggleColor={(c) => setColors(toggle(colors, c))}
+              onClearColors={() => setColors([])}
               onPriceMinChange={setPriceMin}
               onPriceMaxChange={setPriceMax}
               onClear={clearFilters}
@@ -175,7 +191,7 @@ export function CategoryPage({ slug }: CategoryPageProps) {
               onClick={() => setFiltersOpen(false)}
               className="mt-8 w-full bg-ink py-3 text-sm uppercase tracking-[0.12em] text-canvas"
             >
-              Ver {sortedProducts.length} {sortedProducts.length === 1 ? 'peça' : 'peças'}
+              Ver {sortedVariants.length} {sortedVariants.length === 1 ? 'peça' : 'peças'}
             </button>
           </div>
         </div>
@@ -184,11 +200,11 @@ export function CategoryPage({ slug }: CategoryPageProps) {
   );
 }
 
-function sortProducts(list: Product[], sort: SortOption) {
+function sortVariants(list: ColorMatch[], sort: SortOption) {
   const sorted = [...list];
-  if (sort === 'menor-preco') sorted.sort((a, b) => a.price - b.price);
-  if (sort === 'maior-preco') sorted.sort((a, b) => b.price - a.price);
-  if (sort === 'nome') sorted.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  if (sort === 'menor-preco') sorted.sort((a, b) => a.product.price - b.product.price);
+  if (sort === 'maior-preco') sorted.sort((a, b) => b.product.price - a.product.price);
+  if (sort === 'nome') sorted.sort((a, b) => a.product.name.localeCompare(b.product.name, 'pt-BR'));
   return sorted;
 }
 
@@ -198,13 +214,14 @@ function toggle(list: string[], value: string) {
 
 interface FiltersContentProps {
   availableSizes: string[];
-  availableColors: [string, string | undefined][];
+  availableColors: [string, { label: string; hex: string | undefined }][];
   sizes: string[];
   colors: string[];
   priceMin: string;
   priceMax: string;
   onToggleSize: (size: string) => void;
   onToggleColor: (color: string) => void;
+  onClearColors: () => void;
   onPriceMinChange: (value: string) => void;
   onPriceMaxChange: (value: string) => void;
   onClear: () => void;
@@ -220,6 +237,7 @@ function FiltersContent({
   priceMax,
   onToggleSize,
   onToggleColor,
+  onClearColors,
   onPriceMinChange,
   onPriceMaxChange,
   onClear,
@@ -250,21 +268,30 @@ function FiltersContent({
       {availableColors.length > 0 && (
         <div>
           <p className="mb-3 text-xs uppercase tracking-[0.2em] text-muted">Cor</p>
-          <div className="flex flex-wrap gap-3">
-            {availableColors.map(([color, hex]) => (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={onClearColors}
+              className={`border px-3 py-1.5 text-xs uppercase tracking-[0.1em] transition-colors ${
+                colors.length === 0 ? 'border-ink bg-ink text-canvas' : 'border-line text-ink'
+              }`}
+            >
+              Todas
+            </button>
+            {availableColors.map(([key, { label, hex }]) => (
               <button
-                key={color}
+                key={key}
                 type="button"
-                onClick={() => onToggleColor(color)}
-                title={color}
-                className={`h-8 w-8 rounded-full border-2 transition-colors ${
-                  colors.includes(color) ? 'border-ink' : 'border-transparent'
+                onClick={() => onToggleColor(key)}
+                className={`flex items-center gap-2 border px-3 py-1.5 text-xs uppercase tracking-[0.1em] transition-colors ${
+                  colors.includes(key) ? 'border-ink' : 'border-line'
                 }`}
               >
                 <span
-                  className="block h-full w-full rounded-full border border-line"
+                  className="h-3.5 w-3.5 flex-none rounded-full border border-line"
                   style={{ backgroundColor: hex ?? '#ccc' }}
                 />
+                {label}
               </button>
             ))}
           </div>

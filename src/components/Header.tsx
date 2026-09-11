@@ -5,7 +5,7 @@ import { Link } from '../lib/router';
 import { useSiteData } from '../data/siteData';
 
 export function Header() {
-  const { categories } = useSiteData();
+  const { resolvedCategories: categories } = useSiteData();
   const scrolled = useScrolled();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -17,7 +17,7 @@ export function Header() {
         solid ? 'bg-canvas/95 backdrop-blur-sm text-ink' : 'bg-transparent text-canvas'
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 sm:px-10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between safe-px py-5">
         <Link to="/">
           <img
             src={withBase(solid ? LOGO_BLACK : LOGO_WHITE)}
@@ -52,7 +52,7 @@ export function Header() {
       {menuOpen && (
         <nav
           id="mobile-menu"
-          className="flex flex-col gap-8 bg-canvas px-8 pb-16 pt-4 text-ink sm:hidden"
+          className="flex flex-col gap-8 bg-canvas safe-px pb-16 pt-4 text-ink sm:hidden"
         >
           {categories.map((category) => (
             <Link

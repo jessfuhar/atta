@@ -38,7 +38,7 @@ export function Gallery({ images }: GalleryProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row-reverse">
+    <div className="flex min-w-0 flex-col gap-3 sm:flex-row-reverse">
       <div
         className="relative aspect-[4/5] flex-1 overflow-hidden bg-canvas-alt"
         onTouchStart={handleTouchStart}

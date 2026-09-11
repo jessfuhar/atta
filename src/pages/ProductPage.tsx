@@ -6,16 +6,18 @@ import { Link } from '../lib/router';
 
 interface ProductPageProps {
   slug: string;
+  /** Cor inicial vinda de um link de categoria/cor (ex.: /produto/:slug/2) — undefined usa a 1ª cor. */
+  initialVariantIndex?: number;
 }
 
-export function ProductPage({ slug }: ProductPageProps) {
+export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
   const { products } = useSiteData();
   const product = products.find((p) => p.slug === slug);
-  const [variantIndex, setVariantIndex] = useState(0);
+  const [variantIndex, setVariantIndex] = useState(initialVariantIndex ?? 0);
 
   if (!product) {
     return (
-      <div className="mx-auto max-w-7xl px-6 pb-28 pt-40 text-center sm:px-10">
+      <div className="mx-auto max-w-7xl safe-px pb-28 pt-40 text-center">
         <p className="font-display text-3xl">Produto não encontrado.</p>
         <Link to="/" className="mt-6 inline-block border-b border-ink pb-1 text-sm uppercase tracking-[0.12em]">
           Voltar para a home
@@ -27,7 +29,7 @@ export function ProductPage({ slug }: ProductPageProps) {
   const variant = product.variants[Math.min(variantIndex, product.variants.length - 1)] ?? product.variants[0];
 
   return (
-    <div className="mx-auto max-w-6xl px-6 pb-28 pt-28 sm:px-10 sm:pt-36">
+    <div className="mx-auto max-w-6xl safe-px pb-28 pt-28 sm:pt-36">
       <div className="grid gap-10 sm:grid-cols-2 sm:gap-16">
         <Gallery key={variant?.color ?? 'sem-cor'} images={variant?.images ?? []} />
 

@@ -8,20 +8,24 @@ import { Editorial } from '../components/Editorial';
 import { Reveal } from '../components/Reveal';
 
 export function Home() {
-  const { products, categories, colorCategories, kits, homeContent } = useSiteData();
+  const { products, resolvedCategories, colorCategories, kits, homeContent } = useSiteData();
   const favoriteProducts = homeContent.favoriteProductIds
     .map((id) => products.find((p) => p.id === id))
     .filter((p): p is (typeof products)[number] => Boolean(p));
 
   return (
     <>
-      <Hero hero={homeContent.hero} />
+      <Hero
+        desktop={homeContent.hero.desktop}
+        mobile={homeContent.hero.mobile}
+        announcement={homeContent.hero.announcement}
+      />
 
-      <Reveal className="pb-28 sm:pb-36">
-        <Categories categories={categories} />
+      <Reveal className="pb-10 sm:pb-14">
+        <Categories categories={resolvedCategories} />
       </Reveal>
 
-      <Reveal className="pb-28 sm:pb-36">
+      <Reveal className="pb-14 sm:pb-20">
         <ColorCategories colorCategories={colorCategories} />
       </Reveal>
 

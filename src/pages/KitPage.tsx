@@ -15,7 +15,7 @@ export function KitPage({ slug }: KitPageProps) {
 
   if (!kit) {
     return (
-      <div className="mx-auto max-w-7xl px-6 pb-28 pt-40 text-center sm:px-10">
+      <div className="mx-auto max-w-7xl safe-px pb-28 pt-40 text-center">
         <p className="font-display text-3xl">Kit não encontrado.</p>
         <Link to="/" className="mt-6 inline-block border-b border-ink pb-1 text-sm uppercase tracking-[0.12em]">
           Voltar para a home
@@ -25,7 +25,7 @@ export function KitPage({ slug }: KitPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 pb-28 pt-28 sm:px-10 sm:pt-36">
+    <div className="mx-auto max-w-6xl safe-px pb-28 pt-28 sm:pt-36">
       <div className="grid gap-10 sm:grid-cols-2 sm:gap-16">
         <Gallery images={kit.images} />
 

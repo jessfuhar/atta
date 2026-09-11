@@ -18,7 +18,7 @@ export function ColorCategoryPage({ id }: ColorCategoryPageProps) {
 
   if (!category) {
     return (
-      <div className="mx-auto max-w-7xl px-6 pb-28 pt-40 text-center sm:px-10">
+      <div className="mx-auto max-w-7xl safe-px pb-28 pt-40 text-center">
         <p className="font-display text-3xl">Cor não encontrada.</p>
         <Link to="/" className="mt-6 inline-block border-b border-ink pb-1 text-sm uppercase tracking-[0.12em]">
           Voltar para a home
@@ -28,7 +28,7 @@ export function ColorCategoryPage({ id }: ColorCategoryPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 pb-28 pt-28 sm:px-10 sm:pt-36">
+    <div className="mx-auto max-w-7xl safe-px pb-28 pt-28 sm:pt-36">
       <header className="flex items-center gap-3 border-b border-line pb-8">
         <span
           className="h-6 w-6 flex-none rounded-full border border-line"
@@ -45,7 +45,12 @@ export function ColorCategoryPage({ id }: ColorCategoryPageProps) {
       {matches.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 py-10 sm:grid-cols-3 sm:gap-8 lg:grid-cols-4">
           {matches.map(({ product, variant }) => (
-            <ProductCard key={product.id} product={product} variant={variant} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              variant={variant}
+              to={`/produto/${product.slug}/${product.variants.indexOf(variant)}`}
+            />
           ))}
         </div>
       ) : (

@@ -41,6 +41,15 @@ function normalizeColor(value: string) {
     .toLowerCase();
 }
 
+/** "manga-longa" -> "Manga Longa" — rótulo de fallback para categoria usada por um produto mas ainda não cadastrada. */
+function humanizeCategoryId(id: string) {
+  return id
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
 export interface ColorMatch {
   product: Product;
   variant: ProductVariant;
@@ -49,6 +58,8 @@ export interface ColorMatch {
 interface SiteDataContextValue {
   products: Product[];
   categories: CategoryEntry[];
+  /** categories + qualquer category id usado por produtos mas ainda não cadastrado — nunca fica vazia por falta de cadastro duplicado. */
+  resolvedCategories: CategoryEntry[];
   colorCategories: ColorCategory[];
   kits: Kit[];
   homeContent: HomeContent;
@@ -56,6 +67,8 @@ interface SiteDataContextValue {
   getProductsByColorLabel: (label: string) => Product[];
   /** Produto + a variante exata daquela cor — sem fallback para outra cor. Usado em /cor/:id. */
   getColorMatches: (label: string) => ColorMatch[];
+  /** Todas as variantes (todas as cores) de todos os produtos de uma categoria — cada cor vira um card próprio. */
+  getCategoryVariants: (category: Category) => ColorMatch[];
   /** Resolve um item de kit para o produto e a variante referenciados — null se algum não existir mais. */
   resolveKitItem: (item: { productId: string; color: string }) => ColorMatch | null;
   setProducts: (products: Product[]) => void;
@@ -89,9 +102,19 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
       return product.variants.find((v) => normalizeColor(v.color) === target);
     }
 
+    const knownCategoryIds = new Set(categories.map((c) => c.id));
+    const resolvedCategories: CategoryEntry[] = [...categories];
+    for (const p of products) {
+      if (p.category && !knownCategoryIds.has(p.category)) {
+        knownCategoryIds.add(p.category);
+        resolvedCategories.push({ id: p.category, label: humanizeCategoryId(p.category) });
+      }
+    }
+
     return {
       products,
       categories,
+      resolvedCategories,
       colorCategories,
       kits,
       homeContent,
@@ -106,6 +129,14 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
         for (const product of products) {
           const variant = product.variants.find((v) => normalizeColor(v.color) === target);
           if (variant) matches.push({ product, variant });
+        }
+        return matches;
+      },
+      getCategoryVariants: (category) => {
+        const matches: ColorMatch[] = [];
+        for (const product of products) {
+          if (product.category !== category) continue;
+          for (const variant of product.variants) matches.push({ product, variant });
         }
         return matches;
       },

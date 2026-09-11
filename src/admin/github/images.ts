@@ -20,15 +20,11 @@ export function productImagePath(productSlug: string, colorSlug: string, index: 
   return `public/images/products/${productSlug}/${colorSlug}-${index + 1}.${ext}`;
 }
 
-export function categoryImagePath(categoryId: string, ext: string) {
-  return `public/images/categories/${categoryId}.${ext}`;
-}
-
 export function colorImagePath(colorId: string, ext: string) {
   return `public/images/colors/${colorId}.${ext}`;
 }
 
-export function homeImagePath(kind: 'hero' | 'editorial', ext: string) {
+export function homeImagePath(kind: 'hero-desktop' | 'hero-mobile' | 'editorial', ext: string) {
   return `public/images/collections/${kind}.${ext}`;
 }
 
