@@ -36,6 +36,10 @@ export function kitImagePath(kitSlug: string, index: number, ext: string) {
   return `public/images/kits/${kitSlug}/${index + 1}.${ext}`;
 }
 
+export function kitCategoryImagePath(categoryId: string, ext: string) {
+  return `public/images/kit-categories/${categoryId}.${ext}`;
+}
+
 export function toPublicSrc(repoPath: string) {
   return '/' + repoPath.replace(/^public\//, '');
 }

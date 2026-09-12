@@ -3,8 +3,9 @@ import { products as baseProducts } from './products';
 import { categories as baseCategories } from './categories';
 import { colorCategories as baseColorCategories } from './colorCategories';
 import { kits as baseKits } from './kits';
+import { kitCategories as baseKitCategories } from './kitCategories';
 import { homeContent as baseHomeContent } from './home';
-import type { Category, CategoryEntry, ColorCategory, HomeContent, Kit, Product, ProductVariant } from './types';
+import type { Category, CategoryEntry, ColorCategory, HomeContent, Kit, KitCategory, Product, ProductVariant } from './types';
 
 // v2: a estrutura do Hero mudou (ver HomeContent) — chave nova garante que um rascunho salvo
 // no formato antigo nunca seja lido de volta e trave o site (ver isValidHome abaixo).
@@ -15,6 +16,7 @@ interface Overrides {
   categories?: CategoryEntry[];
   colorCategories?: ColorCategory[];
   kits?: Kit[];
+  kitCategories?: KitCategory[];
   home?: HomeContent;
 }
 
@@ -35,6 +37,7 @@ function loadOverrides(): Overrides {
     if (parsed.categories && !Array.isArray(parsed.categories)) delete parsed.categories;
     if (parsed.colorCategories && !Array.isArray(parsed.colorCategories)) delete parsed.colorCategories;
     if (parsed.kits && !Array.isArray(parsed.kits)) delete parsed.kits;
+    if (parsed.kitCategories && !Array.isArray(parsed.kitCategories)) delete parsed.kitCategories;
     return parsed;
   } catch {
     return {};
@@ -94,6 +97,7 @@ interface SiteDataContextValue {
   resolvedCategories: CategoryEntry[];
   colorCategories: ColorCategory[];
   kits: Kit[];
+  kitCategories: KitCategory[];
   homeContent: HomeContent;
   getProductsByCategory: (category: Category) => Product[];
   getProductsByColorLabel: (label: string) => Product[];
@@ -109,6 +113,7 @@ interface SiteDataContextValue {
   setCategories: (categories: CategoryEntry[]) => void;
   setColorCategories: (colorCategories: ColorCategory[]) => void;
   setKits: (kits: Kit[]) => void;
+  setKitCategories: (kitCategories: KitCategory[]) => void;
   setHomeContent: (home: HomeContent) => void;
   resetAll: () => void;
   hasOverrides: boolean;
@@ -123,6 +128,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
   const categories = overrides.categories ?? baseCategories;
   const colorCategories = overrides.colorCategories ?? baseColorCategories;
   const kits = overrides.kits ?? baseKits;
+  const kitCategories = overrides.kitCategories ?? baseKitCategories;
   const homeContent = overrides.home ?? baseHomeContent;
 
   const value = useMemo<SiteDataContextValue>(() => {
@@ -151,6 +157,7 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
       resolvedCategories,
       colorCategories,
       kits,
+      kitCategories,
       homeContent,
       getProductsByCategory: (category) => products.filter((p) => p.category === category),
       getProductsByColorLabel: (label) => {
@@ -186,13 +193,19 @@ export function SiteDataProvider({ children }: { children: ReactNode }) {
       setCategories: (list) => update({ ...overrides, categories: list }),
       setColorCategories: (list) => update({ ...overrides, colorCategories: list }),
       setKits: (list) => update({ ...overrides, kits: list }),
+      setKitCategories: (list) => update({ ...overrides, kitCategories: list }),
       setHomeContent: (home) => update({ ...overrides, home }),
       resetAll: () => update({}),
       hasOverrides: Boolean(
-        overrides.products || overrides.categories || overrides.colorCategories || overrides.kits || overrides.home,
+        overrides.products ||
+          overrides.categories ||
+          overrides.colorCategories ||
+          overrides.kits ||
+          overrides.kitCategories ||
+          overrides.home,
       ),
     };
-  }, [overrides, products, categories, colorCategories, kits, homeContent]);
+  }, [overrides, products, categories, colorCategories, kits, kitCategories, homeContent]);
 
   return <SiteDataContext.Provider value={value}>{children}</SiteDataContext.Provider>;
 }

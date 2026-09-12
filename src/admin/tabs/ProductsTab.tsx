@@ -14,6 +14,7 @@ import { publishChanges, type PublishStatus } from '../github/publish';
 import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
 import { serializeHome, serializeKits, serializeProducts } from '../github/serialize';
 import { imageExt, productImagePath, toPublicSrc } from '../github/images';
+import { STANDARD_SIZES, availableSizesFor } from '../../lib/sizes';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -74,13 +75,11 @@ function VariantEditor({
   onChange: (variant: ProductVariant) => void;
   onRemove: () => void;
 }) {
-  const effectiveSizes = variant.sizes ?? productSizes;
+  const available = availableSizesFor({ sizes: productSizes }, variant);
 
   function toggleSize(size: string) {
-    const next = effectiveSizes.includes(size)
-      ? effectiveSizes.filter((s) => s !== size)
-      : [...productSizes.filter((s) => effectiveSizes.includes(s) || s === size)];
-    onChange({ ...variant, sizes: next });
+    const next = available.includes(size) ? available.filter((s) => s !== size) : [...available, size];
+    onChange({ ...variant, sizes: STANDARD_SIZES.filter((s) => next.includes(s)) });
   }
 
   return (
@@ -127,26 +126,24 @@ function VariantEditor({
         />
       </Field>
 
-      {productSizes.length > 0 && (
-        <div>
-          <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanhos disponíveis nesta cor</p>
-          <div className="flex flex-wrap gap-2">
-            {productSizes.map((size) => (
-              <label
-                key={size}
-                className="flex items-center gap-1.5 border border-line px-2 py-1 text-xs uppercase"
-              >
-                <input
-                  type="checkbox"
-                  checked={effectiveSizes.includes(size)}
-                  onChange={() => toggleSize(size)}
-                />
-                {size}
-              </label>
-            ))}
-          </div>
+      <div>
+        <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanhos disponíveis nesta cor</p>
+        <div className="flex flex-wrap gap-2">
+          {STANDARD_SIZES.map((size) => (
+            <label
+              key={size}
+              className="flex items-center gap-1.5 border border-line px-2 py-1 text-xs uppercase"
+            >
+              <input
+                type="checkbox"
+                checked={available.includes(size)}
+                onChange={() => toggleSize(size)}
+              />
+              {size}
+            </label>
+          ))}
         </div>
-      )}
+      </div>
 
       <div>
         <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Fotos desta cor</p>

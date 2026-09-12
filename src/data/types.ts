@@ -12,7 +12,7 @@ export interface ProductVariant {
   images: { src: string; alt: string }[];
   /** Descrição específica desta cor — ausente/vazia usa a descrição geral do produto. */
   description?: string;
-  /** Tamanhos disponíveis nesta cor — ausente usa todos os tamanhos do produto. */
+  /** Quais tamanhos padrão (ver STANDARD_SIZES) estão disponíveis nesta cor — ausente usa os tamanhos gerais do produto. */
   sizes?: string[];
 }
 
@@ -47,6 +47,13 @@ export interface KitItem {
   color: string;
 }
 
+/** Categoria própria de kits (ex.: "Trio Essential") — independente das categorias de produto. */
+export interface KitCategory {
+  id: string;
+  label: string;
+  image?: { src: string; alt: string };
+}
+
 export interface Kit {
   id: string;
   slug: string;
@@ -56,6 +63,8 @@ export interface Kit {
   active: boolean;
   /** Aparece também na vitrine de kits em destaque da Home (além da página /kits). Ausente = false (kits antigos). */
   showOnHome?: boolean;
+  /** Categoria de kit (ver KitCategory) — ausente = sem categoria, aparece só na listagem geral. */
+  categoryId?: string;
   /** 1ª foto = capa, 2ª = hover, demais = galeria da página do kit (mesma convenção do produto). */
   images: { src: string; alt: string }[];
   items: KitItem[];

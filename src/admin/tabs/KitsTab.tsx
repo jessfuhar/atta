@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSiteData } from '../../data/siteData';
-import type { Kit, KitItem, Product } from '../../data/types';
+import type { Kit, KitCategory, KitItem, Product } from '../../data/types';
 import { ImageListEditor } from '../ImageListEditor';
 import { ImageThumb } from '../ImageThumb';
+import { ImagePicker } from '../ImagePicker';
 import { Field, TextArea, TextInput } from '../Field';
 import { EditableCard } from '../EditableCard';
 import { PublishStatusPill } from '../PublishStatusPill';
@@ -12,8 +13,8 @@ import { formatPrice } from '../../lib/format';
 import { useGithubAuth } from '../github/auth';
 import { publishChanges, type PublishStatus } from '../github/publish';
 import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
-import { serializeKits } from '../github/serialize';
-import { imageExt, kitImagePath, toPublicSrc } from '../github/images';
+import { serializeKits, serializeKitCategories } from '../github/serialize';
+import { imageExt, kitCategoryImagePath, kitImagePath, toPublicSrc } from '../github/images';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -152,8 +153,127 @@ function ItemsEditor({
   );
 }
 
+/** Gestão das categorias de kit (própria, independente das categorias de produto) — excluir uma categoria desvincula os kits que a usavam. */
+function KitCategoriesCard() {
+  const { kitCategories, setKitCategories, kits, setKits } = useSiteData();
+  const { token } = useGithubAuth();
+
+  return (
+    <EditableCard<KitCategory[]>
+      title="Categorias de kit"
+      value={kitCategories}
+      onSave={async (draft, report) => {
+        const images: { path: string; file: File }[] = [];
+        const cleaned = draft.map((category) => {
+          const img = category.image as DraftImageItem | undefined;
+          if (img?.file) {
+            const path = kitCategoryImagePath(category.id, imageExt(img.file));
+            images.push({ path, file: img.file });
+            return { ...category, image: { src: toPublicSrc(path), alt: img.alt } };
+          }
+          return category;
+        });
+
+        const remainingIds = new Set(cleaned.map((c) => c.id));
+        const removedIds = kitCategories.map((c) => c.id).filter((id) => !remainingIds.has(id));
+        const nextKits = removedIds.length > 0
+          ? kits.map((k) => (k.categoryId && removedIds.includes(k.categoryId) ? { ...k, categoryId: undefined } : k))
+          : null;
+
+        await publishChanges({
+          token: token!,
+          files: [
+            { path: 'src/data/kitCategories.ts', content: serializeKitCategories(cleaned) },
+            ...(nextKits ? [{ path: 'src/data/kits.ts', content: serializeKits(nextKits) }] : []),
+          ],
+          images,
+          message: 'admin: atualiza categorias de kit',
+          onStatus: report,
+        });
+        setKitCategories(cleaned);
+        if (nextKits) setKits(nextKits);
+      }}
+      renderSummary={(list) => (
+        <ul className="flex flex-col gap-1 text-sm">
+          {list.length === 0 && <li className="text-muted">Nenhuma categoria de kit ainda.</li>}
+          {list.map((c) => (
+            <li key={c.id} className="text-muted">
+              {c.label}
+            </li>
+          ))}
+        </ul>
+      )}
+      renderForm={(draft, setDraft) => (
+        <div className="flex flex-col gap-4">
+          {draft.map((category, i) => (
+            <div key={category.id} className="flex flex-col gap-3 border border-line p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs uppercase tracking-[0.15em] text-muted">slug: {category.id}</p>
+                <div className="flex items-center gap-2">
+                  <button type="button" disabled={i === 0} onClick={() => setDraft(move(draft, i, -1))} className="px-1 text-xs disabled:opacity-30">▲</button>
+                  <button type="button" disabled={i === draft.length - 1} onClick={() => setDraft(move(draft, i, 1))} className="px-1 text-xs disabled:opacity-30">▼</button>
+                  <button
+                    type="button"
+                    onClick={() => setDraft(draft.filter((_, idx) => idx !== i))}
+                    className="border border-line px-2 py-1 text-[11px] uppercase tracking-[0.1em] text-muted"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+
+              <div className="max-w-xs">
+                <Field label="Nome da categoria">
+                  <TextInput
+                    value={category.label}
+                    onChange={(e) => {
+                      const next = [...draft];
+                      next[i] = { ...category, label: e.target.value };
+                      setDraft(next);
+                    }}
+                  />
+                </Field>
+              </div>
+
+              <ImagePicker
+                label="Imagem de capa (opcional)"
+                value={{
+                  src: category.image?.src ?? '',
+                  alt: category.image?.alt ?? '',
+                  file: (category.image as DraftImageItem | undefined)?.file,
+                }}
+                onChange={(picked) => {
+                  const next = [...draft];
+                  if (!picked.src) {
+                    next[i] = { ...category, image: undefined };
+                  } else {
+                    const image: DraftImageItem = { src: picked.src, alt: category.label, file: picked.file };
+                    next[i] = { ...category, image };
+                  }
+                  setDraft(next);
+                }}
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const id = uniqueSlug('nova categoria de kit', draft.map((c) => c.id));
+              setDraft([...draft, { id, label: 'Nova categoria de kit' }]);
+            }}
+            className="w-fit border border-ink px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
+          >
+            + Adicionar categoria de kit
+          </button>
+        </div>
+      )}
+    />
+  );
+}
+
 function KitForm({ draft, setDraft }: { draft: Kit; setDraft: (updater: Kit | ((k: Kit) => Kit)) => void }) {
-  const { products, getKitPricing } = useSiteData();
+  const { products, kitCategories, getKitPricing } = useSiteData();
   const { original, hasDiscount } = getKitPricing(draft);
 
   return (
@@ -161,6 +281,20 @@ function KitForm({ draft, setDraft }: { draft: Kit; setDraft: (updater: Kit | ((
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Nome">
           <TextInput value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+        </Field>
+        <Field label="Categoria do kit">
+          <select
+            value={draft.categoryId ?? ''}
+            onChange={(e) => setDraft({ ...draft, categoryId: e.target.value || undefined })}
+            className="border border-line bg-canvas px-2 py-1.5 text-sm"
+          >
+            <option value="">Sem categoria</option>
+            {kitCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </Field>
         <div>
           <Field label="Preço do kit (R$)">
@@ -213,8 +347,9 @@ function KitForm({ draft, setDraft }: { draft: Kit; setDraft: (updater: Kit | ((
   );
 }
 
-function KitSummary({ kit, products }: { kit: Kit; products: Product[] }) {
+function KitSummary({ kit, products, kitCategories }: { kit: Kit; products: Product[]; kitCategories: KitCategory[] }) {
   const cover = kit.images[0];
+  const category = kitCategories.find((c) => c.id === kit.categoryId);
   return (
     <div className="flex items-center gap-4">
       <div className="h-16 w-16 flex-none overflow-hidden border border-line bg-canvas-alt">
@@ -226,7 +361,7 @@ function KitSummary({ kit, products }: { kit: Kit; products: Product[] }) {
           {kit.showOnHome && <span className="text-xs text-muted"> · na Home</span>}
         </p>
         <p className="text-xs text-muted">
-          {formatPrice(kit.price)} · {kit.items.length} peça(s):{' '}
+          {formatPrice(kit.price)} · {category ? category.label : 'sem categoria'} · {kit.items.length} peça(s):{' '}
           {kit.items.map((i) => products.find((p) => p.id === i.productId)?.name ?? '—').join(', ') || '—'}
         </p>
       </div>
@@ -235,7 +370,7 @@ function KitSummary({ kit, products }: { kit: Kit; products: Product[] }) {
 }
 
 export function KitsTab() {
-  const { kits, setKits, products } = useSiteData();
+  const { kits, setKits, products, kitCategories } = useSiteData();
   const { token } = useGithubAuth();
   const [creating, setCreating] = useState<Kit | null>(null);
   const [createStatus, setCreateStatus] = useState<PublishStatus>('idle');
@@ -321,6 +456,8 @@ export function KitsTab() {
 
   return (
     <div className="flex flex-col gap-4">
+      <KitCategoriesCard />
+
       <div className="flex items-center gap-3">
         <p className="text-xs text-muted">A ordem da lista define a ordem de exibição na área de kits.</p>
         <PublishStatusPill status={listStatus} />
@@ -353,7 +490,7 @@ export function KitsTab() {
                 });
                 setKits(nextKits);
               }}
-              renderSummary={(k) => <KitSummary kit={k} products={products} />}
+              renderSummary={(k) => <KitSummary kit={k} products={products} kitCategories={kitCategories} />}
               renderForm={(draft, setDraft) => <KitForm draft={draft} setDraft={setDraft} />}
             />
           </div>

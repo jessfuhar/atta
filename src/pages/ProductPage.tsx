@@ -3,6 +3,7 @@ import { useSiteData } from '../data/siteData';
 import { Gallery } from '../components/Gallery';
 import { formatPrice } from '../lib/format';
 import { Link } from '../lib/router';
+import { STANDARD_SIZES, availableSizesFor } from '../lib/sizes';
 
 interface ProductPageProps {
   slug: string;
@@ -14,6 +15,8 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
   const { products } = useSiteData();
   const product = products.find((p) => p.slug === slug);
   const [variantIndex, setVariantIndex] = useState(initialVariantIndex ?? 0);
+  const [sizeSelection, setSizeSelection] = useState<{ variantIndex: number; size: string } | null>(null);
+  const selectedSize = sizeSelection?.variantIndex === variantIndex ? sizeSelection.size : null;
 
   if (!product) {
     return (
@@ -27,7 +30,7 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
   }
 
   const variant = product.variants[Math.min(variantIndex, product.variants.length - 1)] ?? product.variants[0];
-  const sizes = variant?.sizes ?? product.sizes;
+  const availableSizes = availableSizesFor(product, variant ?? { sizes: undefined });
   const description = variant?.description?.trim() || product.description;
 
   return (
@@ -64,21 +67,38 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
             </div>
           )}
 
-          {sizes.length > 0 && (
-            <div className="mt-6">
-              <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanho</p>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <span
+          <div className="mt-6">
+            <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanho</p>
+            <div className="flex flex-wrap gap-2">
+              {STANDARD_SIZES.map((size) => {
+                const isAvailable = availableSizes.includes(size);
+                const isSelected = selectedSize === size;
+                return (
+                  <button
                     key={size}
-                    className="flex h-9 min-w-9 items-center justify-center border border-line px-2 text-xs uppercase"
+                    type="button"
+                    disabled={!isAvailable}
+                    aria-pressed={isSelected}
+                    onClick={() => setSizeSelection({ variantIndex, size })}
+                    className={`relative flex h-9 min-w-9 items-center justify-center overflow-hidden border px-2 text-xs uppercase transition-colors ${
+                      !isAvailable
+                        ? 'cursor-not-allowed border-line text-muted/60'
+                        : isSelected
+                          ? 'border-ink bg-ink text-canvas'
+                          : 'border-line text-ink hover:border-ink'
+                    }`}
                   >
                     {size}
-                  </span>
-                ))}
-              </div>
+                    {!isAvailable && (
+                      <span className="pointer-events-none absolute inset-0" aria-hidden="true">
+                        <span className="absolute left-1/2 top-1/2 h-px w-[150%] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-muted" />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
 
           {description && <p className="mt-8 max-w-md text-sm text-muted">{description}</p>}
         </div>

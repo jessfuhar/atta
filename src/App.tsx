@@ -25,6 +25,7 @@ function App() {
   const colorMatch = path.match(/^\/cor\/([a-z0-9-]+)\/?$/);
   const productMatch = path.match(/^\/produto\/([a-z0-9-]+)(?:\/(\d+))?\/?$/);
   const kitMatch = path.match(/^\/kit\/([a-z0-9-]+)\/?$/);
+  const kitCategoryMatch = path.match(/^\/kits\/categoria\/([a-z0-9-]+)\/?$/);
   const isKitsList = /^\/kits\/?$/.test(path);
 
   return (
@@ -40,6 +41,8 @@ function App() {
           />
         ) : kitMatch ? (
           <KitPage slug={kitMatch[1]} />
+        ) : kitCategoryMatch ? (
+          <KitsPage categoryId={kitCategoryMatch[1]} />
         ) : isKitsList ? (
           <KitsPage />
         ) : colorMatch ? (
