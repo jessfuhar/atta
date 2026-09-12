@@ -30,5 +30,9 @@ export const homeContent: HomeContent = {
     "src": "/images/collections/editorial.jpg",
     "alt": "atta. em movimento",
     "caption": "Força é a nova forma."
+  },
+  "favoriteVariantColor": {
+    "legging-essential": "Preto",
+    "short-essential": "Azul Royal"
   }
 };
