@@ -27,6 +27,8 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
   }
 
   const variant = product.variants[Math.min(variantIndex, product.variants.length - 1)] ?? product.variants[0];
+  const sizes = variant?.sizes ?? product.sizes;
+  const description = variant?.description?.trim() || product.description;
 
   return (
     <div className="mx-auto max-w-6xl safe-px pb-28 pt-28 sm:pt-36">
@@ -62,11 +64,11 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
             </div>
           )}
 
-          {product.sizes.length > 0 && (
+          {sizes.length > 0 && (
             <div className="mt-6">
               <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanho</p>
               <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size) => (
+                {sizes.map((size) => (
                   <span
                     key={size}
                     className="flex h-9 min-w-9 items-center justify-center border border-line px-2 text-xs uppercase"
@@ -78,7 +80,7 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
             </div>
           )}
 
-          {product.description && <p className="mt-8 max-w-md text-sm text-muted">{product.description}</p>}
+          {description && <p className="mt-8 max-w-md text-sm text-muted">{description}</p>}
         </div>
       </div>
     </div>

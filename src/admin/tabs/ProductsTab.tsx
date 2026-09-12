@@ -65,13 +65,24 @@ function extractProductImages(product: Product): { cleaned: Product; images: { p
 
 function VariantEditor({
   variant,
+  productSizes,
   onChange,
   onRemove,
 }: {
   variant: ProductVariant;
+  productSizes: string[];
   onChange: (variant: ProductVariant) => void;
   onRemove: () => void;
 }) {
+  const effectiveSizes = variant.sizes ?? productSizes;
+
+  function toggleSize(size: string) {
+    const next = effectiveSizes.includes(size)
+      ? effectiveSizes.filter((s) => s !== size)
+      : [...productSizes.filter((s) => effectiveSizes.includes(s) || s === size)];
+    onChange({ ...variant, sizes: next });
+  }
+
   return (
     <div className="flex flex-col gap-3 border border-line p-3">
       <div className="flex flex-wrap items-end gap-3">
@@ -106,6 +117,36 @@ function VariantEditor({
           Remover cor
         </button>
       </div>
+
+      <Field label="Descrição desta cor">
+        <TextArea
+          value={variant.description ?? ''}
+          rows={2}
+          placeholder="Vazio usa a descrição geral do produto"
+          onChange={(e) => onChange({ ...variant, description: e.target.value })}
+        />
+      </Field>
+
+      {productSizes.length > 0 && (
+        <div>
+          <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanhos disponíveis nesta cor</p>
+          <div className="flex flex-wrap gap-2">
+            {productSizes.map((size) => (
+              <label
+                key={size}
+                className="flex items-center gap-1.5 border border-line px-2 py-1 text-xs uppercase"
+              >
+                <input
+                  type="checkbox"
+                  checked={effectiveSizes.includes(size)}
+                  onChange={() => toggleSize(size)}
+                />
+                {size}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Fotos desta cor</p>
@@ -168,6 +209,7 @@ function ProductForm({ draft, setDraft }: { draft: Product; setDraft: (updater: 
             <VariantEditor
               key={i}
               variant={variant}
+              productSizes={draft.sizes}
               onChange={(v) => {
                 const variants = [...draft.variants];
                 variants[i] = v;

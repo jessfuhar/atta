@@ -9,9 +9,18 @@ import { Reveal } from '../components/Reveal';
 
 export function Home() {
   const { products, resolvedCategories, colorCategories, kits, homeContent } = useSiteData();
-  const favoriteProducts = homeContent.favoriteProductIds
+  const featuredKits = kits.filter((k) => k.active && k.showOnHome);
+  const favoriteItems = homeContent.favoriteProductIds
     .map((id) => products.find((p) => p.id === id))
-    .filter((p): p is (typeof products)[number] => Boolean(p));
+    .filter((p): p is (typeof products)[number] => Boolean(p))
+    .map((product) => {
+      const color = homeContent.favoriteVariantColor?.[product.id];
+      const variantIndex = Math.max(
+        color ? product.variants.findIndex((v) => v.color === color) : 0,
+        0,
+      );
+      return { product, variant: product.variants[variantIndex], variantIndex };
+    });
 
   return (
     <>
@@ -25,16 +34,18 @@ export function Home() {
         <Categories categories={resolvedCategories} />
       </Reveal>
 
-      <Reveal className="pb-16 sm:pb-24">
+      <Reveal className="pb-10 sm:pb-14">
         <ColorCategories colorCategories={colorCategories} />
       </Reveal>
 
-      <Reveal className="pb-28 sm:pb-36">
-        <Kits kits={kits} />
-      </Reveal>
+      {featuredKits.length > 0 && (
+        <Reveal className="pb-28 sm:pb-36">
+          <Kits kits={kits} />
+        </Reveal>
+      )}
 
       <Reveal className="pb-28 sm:pb-36">
-        <Favorites title={homeContent.favoritesTitle} products={favoriteProducts} />
+        <Favorites title={homeContent.favoritesTitle} items={favoriteItems} />
       </Reveal>
 
       <Reveal>

@@ -295,11 +295,20 @@ export function HomeTab() {
         renderForm={(draft, setDraft) => <HeroForm draft={draft} setDraft={setDraft} />}
       />
 
-      <EditableCard<{ title: string; ids: string[] }>
+      <EditableCard<{ title: string; ids: string[]; colors: Record<string, string> }>
         title="Preferidos"
-        value={{ title: homeContent.favoritesTitle, ids: homeContent.favoriteProductIds }}
-        onSave={async ({ title, ids }, report) => {
-          const nextHome: HomeContent = { ...homeContent, favoritesTitle: title, favoriteProductIds: ids };
+        value={{
+          title: homeContent.favoritesTitle,
+          ids: homeContent.favoriteProductIds,
+          colors: homeContent.favoriteVariantColor ?? {},
+        }}
+        onSave={async ({ title, ids, colors }, report) => {
+          const nextHome: HomeContent = {
+            ...homeContent,
+            favoritesTitle: title,
+            favoriteProductIds: ids,
+            favoriteVariantColor: colors,
+          };
           await publishChanges({
             token: token!,
             files: [{ path: 'src/data/home.ts', content: serializeHome(nextHome) }],
@@ -332,8 +341,23 @@ export function HomeTab() {
                 {draft.ids.map((id, i) => {
                   const product = products.find((p) => p.id === id);
                   return (
-                    <div key={id} className="flex items-center gap-2 border border-line px-2 py-1.5">
+                    <div key={id} className="flex flex-wrap items-center gap-2 border border-line px-2 py-1.5">
                       <span className="flex-1 text-sm">{product?.name ?? id}</span>
+                      {product && product.variants.length > 1 && (
+                        <select
+                          value={draft.colors[id] ?? product.variants[0].color}
+                          onChange={(e) =>
+                            setDraft({ ...draft, colors: { ...draft.colors, [id]: e.target.value } })
+                          }
+                          className="border border-line bg-canvas px-2 py-1 text-xs"
+                        >
+                          {product.variants.map((v) => (
+                            <option key={v.color} value={v.color}>
+                              {v.color}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                       <button
                         type="button"
                         disabled={i === 0}

@@ -10,6 +10,10 @@ export interface ProductVariant {
   color: string;
   hex?: string;
   images: { src: string; alt: string }[];
+  /** Descrição específica desta cor — ausente/vazia usa a descrição geral do produto. */
+  description?: string;
+  /** Tamanhos disponíveis nesta cor — ausente usa todos os tamanhos do produto. */
+  sizes?: string[];
 }
 
 export interface Product {
@@ -80,5 +84,7 @@ export interface HomeContent {
   };
   favoritesTitle: string;
   favoriteProductIds: string[];
+  /** Cor exibida em Preferidos por produto (productId -> cor) — ausente usa a 1ª cor cadastrada. */
+  favoriteVariantColor?: Record<string, string>;
   editorial: Media & { caption?: string };
 }
