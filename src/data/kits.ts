@@ -29,5 +29,29 @@ export const kits: Kit[] = [
         "color": "Marrom"
       }
     ]
+  },
+  {
+    "id": "novo-kit-2",
+    "slug": "novo-kit-2",
+    "name": "Trio Marrom | Legging + Cropped Manga Curta + Top Alça Fina",
+    "description": "Uma combinação firme e versátil, com duas opções mais leves para a parte de cima. O cropped de manga curta traz praticidade, enquanto o top de alça fina cria uma proposta mais delicada. O viés branco valoriza os contornos das peças sem receber pigmentação do tecido marrom.\n\nDetalhes:\n\n• Alta compressão\n• Tecido encorpado e elástico\n• Viés branco contrastante\n• Sem transferência de cor\n• 93% poliamida + 7% elastano",
+    "price": 234.9,
+    "active": true,
+    "showOnHome": false,
+    "images": [],
+    "items": [
+      {
+        "productId": "legging-essential",
+        "color": "Marrom"
+      },
+      {
+        "productId": "cropped-essential",
+        "color": "Marrom"
+      },
+      {
+        "productId": "novo-produto",
+        "color": "Marrom"
+      }
+    ]
   }
 ];
