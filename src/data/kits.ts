@@ -40,7 +40,8 @@ export const kits: Kit[] = [
           "M"
         ]
       }
-    ]
+    ],
+    "categoryId": "trio-essential-3-pecas"
   },
   {
     "id": "novo-kit-2",
