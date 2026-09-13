@@ -180,7 +180,7 @@ export const kits: Kit[] = [
     "description": "Uma combinação prática para treinos e rotina. O short com bolsos facilita o dia a dia, enquanto o cropped de manga curta e o top de alça larga permitem variar o nível de cobertura e sustentação. O viés branco mantém seu acabamento sem receber pigmentação do marrom.\n\nDetalhes:\n\n• Alta compressão\n• Short com bolsos\n• Tecido encorpado e elástico\n• Sem transferência de cor\n• 93% poliamida + 7% elastano",
     "price": 204.9,
     "active": true,
-    "showOnHome": false,
+    "showOnHome": true,
     "images": [
       {
         "src": "/images/kits/novo-kit-5/1.png",
