@@ -8,7 +8,7 @@ import { KitsTab } from './tabs/KitsTab';
 import { Home } from '../pages/Home';
 import { useGithubAuth } from './github/auth';
 
-const TABS = ['Home', 'Produtos', 'Categorias', 'Cores', 'Kits', 'Pré-visualizar'] as const;
+const TABS = ['Home', 'Produtos', 'Categorias de peça', 'Cores', 'Kits', 'Pré-visualizar'] as const;
 type Tab = (typeof TABS)[number];
 
 export function AdminApp() {
@@ -56,7 +56,7 @@ export function AdminApp() {
       <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         {tab === 'Home' && <HomeTab />}
         {tab === 'Produtos' && <ProductsTab />}
-        {tab === 'Categorias' && <CategoriesTab />}
+        {tab === 'Categorias de peça' && <CategoriesTab />}
         {tab === 'Cores' && <ColorCategoriesTab />}
         {tab === 'Kits' && <KitsTab />}
         {tab === 'Pré-visualizar' && (
