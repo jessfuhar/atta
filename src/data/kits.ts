@@ -86,6 +86,7 @@ export const kits: Kit[] = [
           "M"
         ]
       }
-    ]
+    ],
+    "categoryId": "trio-essential-3-pecas"
   }
 ];
