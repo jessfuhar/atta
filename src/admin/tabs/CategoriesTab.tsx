@@ -26,7 +26,9 @@ export function CategoriesTab() {
     <div className="flex flex-col gap-3">
       <p className="text-xs text-muted">
         Toda categoria usada por algum produto aparece no site automaticamente, mesmo sem cadastrar aqui.
-        Use esta lista para definir nome, imagem e ordem de exibição (inclusive da categoria "Kits").
+        Use esta lista para definir nome, imagem e ordem de exibição (inclusive da categoria "Kits",
+        que sempre linka para a página /kits). Para categorias de kit (ex.: Trio, Conjunto), use
+        "Categorias de kit" na aba Kits — não renomeie nem crie categorias aqui para isso.
       </p>
 
       <EditableCard<CategoryEntry[]>

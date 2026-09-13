@@ -3,18 +3,10 @@ import type { CategoryEntry } from './types';
 export const categories: CategoryEntry[] = [
   {
     "id": "kits",
-    "label": "Conjunto 2 Peças  Essential ",
+    "label": "Kits",
     "image": {
       "src": "/images/categories/kits.png",
-      "alt": "Conjunto Duo Essential - 2 Peças "
-    }
-  },
-  {
-    "id": "nova-categoria",
-    "label": "Trio Essential - 3 Peças",
-    "image": {
-      "src": "/images/categories/nova-categoria.png",
-      "alt": "Trio Essential - 3 Peças"
+      "alt": "Kits"
     }
   },
   {
