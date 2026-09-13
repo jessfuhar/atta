@@ -127,5 +127,47 @@ export const kits: Kit[] = [
       }
     ],
     "categoryId": "trio-essential-3-pecas"
+  },
+  {
+    "id": "novo-kit-4",
+    "slug": "novo-kit-4",
+    "name": "Trio Marrom | Legging + Cropped Manga Curta + Top Alça Larga",
+    "description": "Um trio funcional para alternar entre cropped e top sem trocar a legging. O cropped de manga curta oferece mais cobertura, enquanto o top de alça larga proporciona maior sustentação. Os detalhes em viés branco permanecem limpos e bem definidos.\n\nDetalhes:\n\n• Alta compressão\n• Tecido encorpado e elástico\n• Viés branco contrastante\n• Sem transferência de cor\n• 93% poliamida + 7% elastano",
+    "price": 244.9,
+    "active": true,
+    "showOnHome": false,
+    "images": [
+      {
+        "src": "/images/kits/novo-kit-4/1.png",
+        "alt": ""
+      }
+    ],
+    "items": [
+      {
+        "productId": "legging-essential",
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
+      },
+      {
+        "productId": "top-essential",
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
+      },
+      {
+        "productId": "cropped-essential",
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
+      }
+    ],
+    "categoryId": "trio-essential-3-pecas"
   }
 ];
