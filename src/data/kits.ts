@@ -50,19 +50,40 @@ export const kits: Kit[] = [
     "price": 234.9,
     "active": true,
     "showOnHome": false,
-    "images": [],
+    "images": [
+      {
+        "src": "/images/kits/novo-kit-2/1.png",
+        "alt": ""
+      },
+      {
+        "src": "/images/kits/novo-kit-2/2.png",
+        "alt": ""
+      }
+    ],
     "items": [
       {
         "productId": "legging-essential",
-        "color": "Marrom"
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
       },
       {
         "productId": "cropped-essential",
-        "color": "Marrom"
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
       },
       {
         "productId": "novo-produto",
-        "color": "Marrom"
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
       }
     ]
   }
