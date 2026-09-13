@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useSiteData, type ColorMatch } from '../data/siteData';
 import type { KitItem } from '../data/types';
 import { Gallery } from '../components/Gallery';
+import { SizeSelector } from '../components/SizeSelector';
 import { formatPrice } from '../lib/format';
+import { availableSizesFor, resolveValidSize } from '../lib/sizes';
 import { withBase } from '../lib/assets';
 import { Link } from '../lib/router';
 
@@ -66,27 +69,35 @@ function KitItemTile({
   resolve: (item: KitItem) => ColorMatch | null;
 }) {
   const match = resolve(item);
+  const availableSizes = match ? availableSizesFor(match.product, match.variant) : [];
+  const [selectedSize, setSelectedSize] = useState<string | null>(() => resolveValidSize(availableSizes, item.size) ?? null);
+
   if (!match) return null;
   const { product, variant } = match;
   const thumb = variant.images[0];
 
   return (
-    <Link to={`/produto/${product.slug}`} className="group flex items-center gap-3">
-      <div className="h-16 w-16 flex-none overflow-hidden bg-canvas-alt">
-        {thumb && (
-          <img
-            src={withBase(thumb.src)}
-            alt={thumb.alt}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        )}
-      </div>
-      <div className="min-w-0">
-        <p className="truncate text-sm">{product.name}</p>
-        <p className="text-xs text-muted">{item.color}</p>
-        <p className="text-xs text-muted">{formatPrice(product.price)}</p>
-      </div>
-    </Link>
+    <div className="flex flex-col gap-3">
+      <Link to={`/produto/${product.slug}`} className="group flex items-center gap-3">
+        <div className="h-16 w-16 flex-none overflow-hidden bg-canvas-alt">
+          {thumb && (
+            <img
+              src={withBase(thumb.src)}
+              alt={thumb.alt}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm">{product.name}</p>
+          <p className="text-xs text-muted">{item.color}</p>
+          <p className="text-xs text-muted">{formatPrice(product.price)}</p>
+        </div>
+      </Link>
+      {availableSizes.length > 0 && (
+        <SizeSelector availableSizes={availableSizes} selectedSize={selectedSize} onSelect={setSelectedSize} compact />
+      )}
+    </div>
   );
 }

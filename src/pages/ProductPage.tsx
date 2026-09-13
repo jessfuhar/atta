@@ -3,7 +3,8 @@ import { useSiteData } from '../data/siteData';
 import { Gallery } from '../components/Gallery';
 import { formatPrice } from '../lib/format';
 import { Link } from '../lib/router';
-import { STANDARD_SIZES, availableSizesFor } from '../lib/sizes';
+import { availableSizesFor } from '../lib/sizes';
+import { SizeSelector } from '../components/SizeSelector';
 
 interface ProductPageProps {
   slug: string;
@@ -69,35 +70,11 @@ export function ProductPage({ slug, initialVariantIndex }: ProductPageProps) {
 
           <div className="mt-6">
             <p className="mb-2 text-xs uppercase tracking-[0.15em] text-muted">Tamanho</p>
-            <div className="flex flex-wrap gap-2">
-              {STANDARD_SIZES.map((size) => {
-                const isAvailable = availableSizes.includes(size);
-                const isSelected = selectedSize === size;
-                return (
-                  <button
-                    key={size}
-                    type="button"
-                    disabled={!isAvailable}
-                    aria-pressed={isSelected}
-                    onClick={() => setSizeSelection({ variantIndex, size })}
-                    className={`relative flex h-9 min-w-9 items-center justify-center overflow-hidden border px-2 text-xs uppercase transition-colors ${
-                      !isAvailable
-                        ? 'cursor-not-allowed border-line text-muted/60'
-                        : isSelected
-                          ? 'border-ink bg-ink text-canvas'
-                          : 'border-line text-ink hover:border-ink'
-                    }`}
-                  >
-                    {size}
-                    {!isAvailable && (
-                      <span className="pointer-events-none absolute inset-0" aria-hidden="true">
-                        <span className="absolute left-1/2 top-1/2 h-px w-[150%] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-muted" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            <SizeSelector
+              availableSizes={availableSizes}
+              selectedSize={selectedSize}
+              onSelect={(size) => setSizeSelection({ variantIndex, size })}
+            />
           </div>
 
           {description && <p className="mt-8 max-w-md text-sm text-muted">{description}</p>}

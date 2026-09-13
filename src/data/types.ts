@@ -45,6 +45,8 @@ export interface ColorCategory {
 export interface KitItem {
   productId: string;
   color: string;
+  /** Tamanho desta peça dentro do kit — ausente = kit antigo, criado antes do tamanho por peça existir. */
+  size?: string;
 }
 
 /** Categoria própria de kits (ex.: "Trio Essential") — independente das categorias de produto. */

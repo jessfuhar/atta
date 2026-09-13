@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { computeKitPricing, isValidHome } from './siteData';
+import { computeKitPricing, isValidHome, visibleKitsForCategory } from './siteData';
 import { homeContent } from './home';
-import type { Product } from './types';
+import type { Kit, Product } from './types';
 
 /**
  * Regressão: um rascunho salvo no localStorage antes da mudança de estrutura do Hero
@@ -53,5 +53,31 @@ describe('computeKitPricing', () => {
   it('não mostra desconto falso quando o preço do kit não é menor que a soma', () => {
     const kit = { price: 260, items: [{ productId: 'a', color: 'Preto' }, { productId: 'b', color: 'Preto' }] };
     expect(computeKitPricing(kit, products).hasDiscount).toBe(false);
+  });
+});
+
+function kit(id: string, categoryId: string | undefined, active = true): Kit {
+  return { id, slug: id, name: id, description: '', price: 100, active, categoryId, images: [], items: [] };
+}
+
+describe('visibleKitsForCategory', () => {
+  const kits = [
+    kit('duo-1', 'conjunto-duo-essential-2-pecas'),
+    kit('trio-1', 'trio-essential-3-pecas'),
+    kit('trio-2', 'trio-essential-3-pecas'),
+    kit('sem-categoria', undefined),
+    kit('trio-inativo', 'trio-essential-3-pecas', false),
+  ];
+
+  it('sem categoria, lista todos os kits ativos', () => {
+    expect(visibleKitsForCategory(kits, undefined).map((k) => k.id)).toEqual(['duo-1', 'trio-1', 'trio-2', 'sem-categoria']);
+  });
+
+  it('categoria Conjunto Duo: só os kits dessa categoria', () => {
+    expect(visibleKitsForCategory(kits, 'conjunto-duo-essential-2-pecas').map((k) => k.id)).toEqual(['duo-1']);
+  });
+
+  it('categoria Trio: só os kits dessa categoria, sem misturar com outras nem com inativos', () => {
+    expect(visibleKitsForCategory(kits, 'trio-essential-3-pecas').map((k) => k.id)).toEqual(['trio-1', 'trio-2']);
   });
 });

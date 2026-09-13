@@ -1,4 +1,4 @@
-import { useSiteData } from '../data/siteData';
+import { useSiteData, visibleKitsForCategory } from '../data/siteData';
 import { KitCard } from '../components/KitCard';
 import { Link } from '../lib/router';
 
@@ -10,9 +10,8 @@ interface KitsPageProps {
 /** Lista os kits ativos — destino do item "Kits" no header e na vitrine circular de categorias; filtrável por categoria de kit. */
 export function KitsPage({ categoryId }: KitsPageProps) {
   const { kits, kitCategories } = useSiteData();
-  const activeKits = kits.filter((k) => k.active);
   const category = categoryId ? kitCategories.find((c) => c.id === categoryId) : undefined;
-  const visibleKits = category ? activeKits.filter((k) => k.categoryId === category.id) : activeKits;
+  const visibleKits = visibleKitsForCategory(kits, category?.id);
 
   return (
     <div className="mx-auto max-w-7xl safe-px pb-28 pt-28 sm:pt-36">

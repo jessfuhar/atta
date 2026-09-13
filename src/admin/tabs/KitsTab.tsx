@@ -15,6 +15,8 @@ import { publishChanges, type PublishStatus } from '../github/publish';
 import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
 import { serializeKits, serializeKitCategories } from '../github/serialize';
 import { imageExt, kitCategoryImagePath, kitImagePath, toPublicSrc } from '../github/images';
+import { availableSizesFor, resolveValidSize } from '../../lib/sizes';
+import { SizeSelector } from '../../components/SizeSelector';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -72,17 +74,30 @@ function ItemsEditor({
   const [addProductId, setAddProductId] = useState('');
   const addProduct = products.find((p) => p.id === addProductId);
   const [addColor, setAddColor] = useState('');
+  const [addSize, setAddSize] = useState('');
+
+  const addVariant = addProduct?.variants.find((v) => v.color === addColor);
+  const addAvailableSizes = addProduct && addVariant ? availableSizesFor(addProduct, addVariant) : [];
 
   function selectProduct(id: string) {
     setAddProductId(id);
     setAddColor(products.find((p) => p.id === id)?.variants[0]?.color ?? '');
+    setAddSize('');
+  }
+
+  function selectColor(color: string) {
+    const variant = addProduct?.variants.find((v) => v.color === color);
+    const available = addProduct && variant ? availableSizesFor(addProduct, variant) : [];
+    setAddColor(color);
+    setAddSize((prev) => resolveValidSize(available, prev) ?? '');
   }
 
   function addItem() {
-    if (!addProduct || !addColor) return;
-    onChange([...items, { productId: addProduct.id, color: addColor }]);
+    if (!addProduct || !addColor || !addSize) return;
+    onChange([...items, { productId: addProduct.id, color: addColor, size: addSize }]);
     setAddProductId('');
     setAddColor('');
+    setAddSize('');
   }
 
   return (
@@ -95,7 +110,11 @@ function ItemsEditor({
           return (
             <div key={`${item.productId}-${item.color}-${i}`} className="flex flex-wrap items-center gap-2 border border-line p-2">
               <span className="flex-1 text-sm">
-                {product?.name ?? 'produto removido'} <span className="text-xs text-muted">— {item.color}</span>
+                {product?.name ?? 'produto removido'}{' '}
+                <span className="text-xs text-muted">
+                  — {item.color}
+                  {item.size ? ` · ${item.size}` : ''}
+                </span>
               </span>
               <button type="button" disabled={i === 0} onClick={() => onChange(move(items, i, -1))} className="px-1 text-xs disabled:opacity-30">▲</button>
               <button type="button" disabled={i === items.length - 1} onClick={() => onChange(move(items, i, 1))} className="px-1 text-xs disabled:opacity-30">▼</button>
@@ -129,7 +148,7 @@ function ItemsEditor({
         <Field label="Cor">
           <select
             value={addColor}
-            onChange={(e) => setAddColor(e.target.value)}
+            onChange={(e) => selectColor(e.target.value)}
             disabled={!addProduct}
             className="w-full border border-line bg-canvas px-2 py-1.5 text-sm disabled:opacity-40 sm:w-auto"
           >
@@ -140,9 +159,14 @@ function ItemsEditor({
             ))}
           </select>
         </Field>
+        {addProduct && addColor && (
+          <Field label="Tamanho">
+            <SizeSelector availableSizes={addAvailableSizes} selectedSize={addSize || null} onSelect={setAddSize} />
+          </Field>
+        )}
         <button
           type="button"
-          disabled={!addProduct || !addColor}
+          disabled={!addProduct || !addColor || !addSize}
           onClick={addItem}
           className="border border-ink px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] disabled:opacity-40"
         >

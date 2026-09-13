@@ -90,6 +90,12 @@ export function computeKitPricing(kit: Pick<Kit, 'price' | 'items'>, products: P
   return { original, final: kit.price, hasDiscount: original > kit.price };
 }
 
+/** Kits ativos, filtrados por categoria de kit quando um categoryId é passado — sem categoryId, mostra todos os ativos. */
+export function visibleKitsForCategory(kits: Kit[], categoryId: string | undefined): Kit[] {
+  const active = kits.filter((k) => k.active);
+  return categoryId ? active.filter((k) => k.categoryId === categoryId) : active;
+}
+
 interface SiteDataContextValue {
   products: Product[];
   categories: CategoryEntry[];
