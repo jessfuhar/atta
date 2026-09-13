@@ -4,12 +4,17 @@ export const kits: Kit[] = [
   {
     "id": "novo-kit",
     "slug": "novo-kit",
-    "name": "Novo kit",
-    "description": "",
-    "price": 196,
+    "name": "Trio Marrom | Legging + Cropped Manga Longa + Top Alça Larga",
+    "description": "Três peças para variar entre uma proposta mais coberta e outra mais leve. O cropped de manga longa possui abertura para o polegar, enquanto o top de alça larga oferece maior sustentação. O viés branco destaca a modelagem e permanece preservado, sem transferência de cor.\n\nDetalhes:\n\n• Alta compressão\n• Tecido encorpado e elástico\n• Viés branco contrastante\n• Sem transferência de cor\n• 93% poliamida + 7% elastano",
+    "price": 254.9,
     "active": true,
     "showOnHome": true,
-    "images": [],
+    "images": [
+      {
+        "src": "/images/kits/novo-kit/1.png",
+        "alt": ""
+      }
+    ],
     "items": [
       {
         "productId": "legging-essential",
