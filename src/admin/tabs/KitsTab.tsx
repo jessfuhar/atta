@@ -15,8 +15,8 @@ import { publishChanges, type PublishStatus } from '../github/publish';
 import { PUBLISH_SUCCESS_MESSAGE } from '../useDraft';
 import { serializeKits, serializeKitCategories } from '../github/serialize';
 import { imageExt, kitCategoryImagePath, kitImagePath, toPublicSrc } from '../github/images';
-import { availableSizesFor, resolveValidSize } from '../../lib/sizes';
-import { SizeSelector } from '../../components/SizeSelector';
+import { availableSizesFor } from '../../lib/sizes';
+import { MultiSizeSelector } from '../../components/MultiSizeSelector';
 
 function move<T>(list: T[], index: number, delta: number): T[] {
   const next = [...list];
@@ -74,7 +74,7 @@ function ItemsEditor({
   const [addProductId, setAddProductId] = useState('');
   const addProduct = products.find((p) => p.id === addProductId);
   const [addColor, setAddColor] = useState('');
-  const [addSize, setAddSize] = useState('');
+  const [addSizes, setAddSizes] = useState<string[]>([]);
 
   const addVariant = addProduct?.variants.find((v) => v.color === addColor);
   const addAvailableSizes = addProduct && addVariant ? availableSizesFor(addProduct, addVariant) : [];
@@ -82,22 +82,26 @@ function ItemsEditor({
   function selectProduct(id: string) {
     setAddProductId(id);
     setAddColor(products.find((p) => p.id === id)?.variants[0]?.color ?? '');
-    setAddSize('');
+    setAddSizes([]);
   }
 
   function selectColor(color: string) {
     const variant = addProduct?.variants.find((v) => v.color === color);
     const available = addProduct && variant ? availableSizesFor(addProduct, variant) : [];
     setAddColor(color);
-    setAddSize((prev) => resolveValidSize(available, prev) ?? '');
+    setAddSizes((prev) => prev.filter((s) => available.includes(s)));
+  }
+
+  function toggleAddSize(size: string) {
+    setAddSizes((prev) => (prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]));
   }
 
   function addItem() {
-    if (!addProduct || !addColor || !addSize) return;
-    onChange([...items, { productId: addProduct.id, color: addColor, size: addSize }]);
+    if (!addProduct || !addColor || addSizes.length === 0) return;
+    onChange([...items, { productId: addProduct.id, color: addColor, sizes: [...addSizes] }]);
     setAddProductId('');
     setAddColor('');
-    setAddSize('');
+    setAddSizes([]);
   }
 
   return (
@@ -113,7 +117,7 @@ function ItemsEditor({
                 {product?.name ?? 'produto removido'}{' '}
                 <span className="text-xs text-muted">
                   — {item.color}
-                  {item.size ? ` · ${item.size}` : ''}
+                  {item.sizes?.length ? ` · ${item.sizes.join('/')}` : ''}
                 </span>
               </span>
               <button type="button" disabled={i === 0} onClick={() => onChange(move(items, i, -1))} className="px-1 text-xs disabled:opacity-30">▲</button>
@@ -160,13 +164,13 @@ function ItemsEditor({
           </select>
         </Field>
         {addProduct && addColor && (
-          <Field label="Tamanho">
-            <SizeSelector availableSizes={addAvailableSizes} selectedSize={addSize || null} onSelect={setAddSize} />
+          <Field label="Tamanhos">
+            <MultiSizeSelector availableSizes={addAvailableSizes} selectedSizes={addSizes} onToggle={toggleAddSize} />
           </Field>
         )}
         <button
           type="button"
-          disabled={!addProduct || !addColor || !addSize}
+          disabled={!addProduct || !addColor || addSizes.length === 0}
           onClick={addItem}
           className="border border-ink px-3 py-1.5 text-[11px] uppercase tracking-[0.1em] disabled:opacity-40"
         >

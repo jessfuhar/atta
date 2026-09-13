@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { useSiteData, type ColorMatch } from '../data/siteData';
 import type { KitItem } from '../data/types';
 import { Gallery } from '../components/Gallery';
-import { SizeSelector } from '../components/SizeSelector';
+import { MultiSizeSelector } from '../components/MultiSizeSelector';
 import { formatPrice } from '../lib/format';
-import { availableSizesFor, resolveValidSize } from '../lib/sizes';
+import { availableSizesFor } from '../lib/sizes';
 import { withBase } from '../lib/assets';
 import { Link } from '../lib/router';
 
@@ -69,12 +68,11 @@ function KitItemTile({
   resolve: (item: KitItem) => ColorMatch | null;
 }) {
   const match = resolve(item);
-  const availableSizes = match ? availableSizesFor(match.product, match.variant) : [];
-  const [selectedSize, setSelectedSize] = useState<string | null>(() => resolveValidSize(availableSizes, item.size) ?? null);
-
   if (!match) return null;
   const { product, variant } = match;
   const thumb = variant.images[0];
+  const availableSizes = availableSizesFor(product, variant);
+  const kitSizes = (item.sizes ?? []).filter((s) => availableSizes.includes(s));
 
   return (
     <div className="flex flex-col gap-3">
@@ -95,9 +93,7 @@ function KitItemTile({
           <p className="text-xs text-muted">{formatPrice(product.price)}</p>
         </div>
       </Link>
-      {availableSizes.length > 0 && (
-        <SizeSelector availableSizes={availableSizes} selectedSize={selectedSize} onSelect={setSelectedSize} compact />
-      )}
+      {kitSizes.length > 0 && <MultiSizeSelector availableSizes={availableSizes} selectedSizes={kitSizes} />}
     </div>
   );
 }
