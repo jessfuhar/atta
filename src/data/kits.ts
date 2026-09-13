@@ -90,45 +90,6 @@ export const kits: Kit[] = [
     "categoryId": "trio-essential-3-pecas"
   },
   {
-    "id": "novo-kit-3",
-    "slug": "novo-kit-3",
-    "name": "Trio Marrom | Short com Bolsos + Cropped Manga Longa + Top Alça Fina",
-    "description": "Equilíbrio entre praticidade e versatilidade. O short possui bolsos, o cropped de manga longa conta com abertura para o polegar e o top de alça fina traz uma opção mais leve. O viés branco realça a modelagem sem sofrer transferência de cor.\n\nDetalhes:\n\n• Alta compressão\n• Short com bolsos\n• Abertura para o polegar\n• Viés branco contrastante\n• 93% poliamida + 7% elastano",
-    "price": 204.9,
-    "active": true,
-    "showOnHome": false,
-    "images": [
-      {
-        "src": "/images/kits/novo-kit-3/1.png",
-        "alt": ""
-      }
-    ],
-    "items": [
-      {
-        "productId": "short-essential",
-        "color": "Marrom ",
-        "sizes": [
-          "M"
-        ]
-      },
-      {
-        "productId": "novo-produto-2",
-        "color": "Marrom",
-        "sizes": [
-          "M"
-        ]
-      },
-      {
-        "productId": "novo-produto",
-        "color": "Marrom",
-        "sizes": [
-          "M"
-        ]
-      }
-    ],
-    "categoryId": "trio-essential-3-pecas"
-  },
-  {
     "id": "novo-kit-4",
     "slug": "novo-kit-4",
     "name": "Trio Marrom | Legging + Cropped Manga Curta + Top Alça Larga",
@@ -164,6 +125,45 @@ export const kits: Kit[] = [
         "color": "Marrom",
         "sizes": [
           "P",
+          "M"
+        ]
+      }
+    ],
+    "categoryId": "trio-essential-3-pecas"
+  },
+  {
+    "id": "novo-kit-3",
+    "slug": "novo-kit-3",
+    "name": "Trio Marrom | Short com Bolsos + Cropped Manga Longa + Top Alça Fina",
+    "description": "Equilíbrio entre praticidade e versatilidade. O short possui bolsos, o cropped de manga longa conta com abertura para o polegar e o top de alça fina traz uma opção mais leve. O viés branco realça a modelagem sem sofrer transferência de cor.\n\nDetalhes:\n\n• Alta compressão\n• Short com bolsos\n• Abertura para o polegar\n• Viés branco contrastante\n• 93% poliamida + 7% elastano",
+    "price": 204.9,
+    "active": true,
+    "showOnHome": false,
+    "images": [
+      {
+        "src": "/images/kits/novo-kit-3/1.png",
+        "alt": ""
+      }
+    ],
+    "items": [
+      {
+        "productId": "short-essential",
+        "color": "Marrom ",
+        "sizes": [
+          "M"
+        ]
+      },
+      {
+        "productId": "novo-produto-2",
+        "color": "Marrom",
+        "sizes": [
+          "M"
+        ]
+      },
+      {
+        "productId": "novo-produto",
+        "color": "Marrom",
+        "sizes": [
           "M"
         ]
       }
