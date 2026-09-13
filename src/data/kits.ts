@@ -18,15 +18,27 @@ export const kits: Kit[] = [
     "items": [
       {
         "productId": "legging-essential",
-        "color": "Marrom"
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
       },
       {
         "productId": "novo-produto-2",
-        "color": "Marrom"
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
       },
       {
         "productId": "top-essential",
-        "color": "Marrom"
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M"
+        ]
       }
     ]
   },
