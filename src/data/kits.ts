@@ -67,15 +67,8 @@ export const kits: Kit[] = [
         "color": "Marrom",
         "sizes": [
           "P",
-          "M"
-        ]
-      },
-      {
-        "productId": "cropped-essential",
-        "color": "Marrom",
-        "sizes": [
-          "P",
-          "M"
+          "M",
+          "G"
         ]
       },
       {
@@ -83,7 +76,17 @@ export const kits: Kit[] = [
         "color": "Marrom",
         "sizes": [
           "P",
-          "M"
+          "M",
+          "G"
+        ]
+      },
+      {
+        "productId": "cropped-essential",
+        "color": "Marrom",
+        "sizes": [
+          "P",
+          "M",
+          "G"
         ]
       }
     ],
