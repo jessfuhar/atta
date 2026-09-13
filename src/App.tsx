@@ -27,10 +27,11 @@ function App() {
   const kitMatch = path.match(/^\/kit\/([a-z0-9-]+)\/?$/);
   const kitCategoryMatch = path.match(/^\/kits\/categoria\/([a-z0-9-]+)\/?$/);
   const isKitsList = /^\/kits\/?$/.test(path);
+  const isHome = !productMatch && !kitMatch && !kitCategoryMatch && !isKitsList && !colorMatch && !categoryMatch;
 
   return (
     <>
-      <Header />
+      <Header alwaysSolid={!isHome} />
 
       <main>
         {productMatch ? (

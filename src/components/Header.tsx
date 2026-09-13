@@ -5,12 +5,17 @@ import { Link } from '../lib/router';
 import { categoryHref } from '../lib/categoryHref';
 import { useSiteData } from '../data/siteData';
 
-export function Header() {
+interface HeaderProps {
+  /** true em páginas sem hero escuro no topo (tudo exceto a Home) — header já nasce sólido, sem depender do scroll. */
+  alwaysSolid?: boolean;
+}
+
+export function Header({ alwaysSolid = false }: HeaderProps) {
   const { resolvedCategories: categories } = useSiteData();
   const scrolled = useScrolled();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const solid = scrolled || menuOpen;
+  const solid = alwaysSolid || scrolled || menuOpen;
 
   return (
     <header
